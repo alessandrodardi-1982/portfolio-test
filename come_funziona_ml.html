@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Come funziona — Manutenzione Predittiva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#001A33; --bg2:#04223F; --card:#0a1f38; --card2:#0d2544;
+  --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+  --text:#EAF1FA; --muted:#9DB2CC; --muted2:#5f7591;
+  --accent:#2E9BEC;
+  --amber:#f5a623; --amber-bg:rgba(245,166,35,.10);
+  --verde:#34d399; --verde-bg:rgba(52,211,153,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Hanken Grotesk',sans-serif;
+  background:radial-gradient(ellipse 120% 80% at 50% -10%,var(--bg2),var(--bg));
+  background-attachment:fixed;
+  color:var(--text); line-height:1.6; min-height:100vh;
+  padding:clamp(24px,5vw,60px) clamp(20px,5vw,40px);
+}
+.wrap{max-width:820px;margin:0 auto}
+
+/* Nav back */
+.back{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  text-decoration:none;margin-bottom:48px;
+  transition:color .2s;
+}
+.back:hover{color:var(--accent)}
+.back::before{content:"←";font-size:14px}
+
+/* Header */
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:16px;
+}
+h1{
+  font-family:'Fraunces',serif;font-weight:500;
+  font-size:clamp(28px,5vw,44px);line-height:1.08;
+  letter-spacing:-.02em;margin-bottom:18px;
+}
+.intro{
+  font-size:clamp(15px,2vw,17px);color:var(--muted);
+  max-width:640px;border-left:2px solid var(--accent);
+  padding-left:18px;margin-bottom:52px;line-height:1.7;
+}
+
+/* Blocchi */
+.block{margin-bottom:48px}
+.block-num{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:10px;
+}
+.block h2{
+  font-family:'Fraunces',serif;font-weight:500;
+  font-size:clamp(20px,3vw,26px);letter-spacing:-.01em;
+  margin-bottom:16px;
+}
+.block p{color:var(--muted);font-size:15.5px;line-height:1.75;margin-bottom:14px}
+.block p strong{color:var(--text);font-weight:600}
+.block p:last-child{margin-bottom:0}
+hr.div{border:none;border-top:1px solid var(--line);margin:48px 0}
+
+/* Tabella feature */
+.feat-table{
+  width:100%;border-collapse:collapse;margin:24px 0;
+  font-size:14.5px;
+}
+.feat-table th{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);
+  text-align:left;padding:10px 14px;border-bottom:1px solid var(--line2);
+}
+.feat-table td{
+  padding:12px 14px;border-bottom:1px solid var(--line);
+  vertical-align:top;color:var(--muted);
+}
+.feat-table td:first-child{
+  font-family:'JetBrains Mono',monospace;font-size:13px;
+  color:var(--text);font-weight:500;white-space:nowrap;
+}
+.feat-table td .bar{
+  display:inline-block;height:4px;border-radius:2px;
+  background:var(--accent);margin-top:6px;opacity:.7;
+}
+.feat-table tr:last-child td{border-bottom:none}
+
+/* Box callout */
+.callout{
+  background:var(--card);border:1px solid var(--line);
+  border-left:3px solid var(--accent);
+  border-radius:8px;padding:20px 22px;margin:24px 0;
+}
+.callout.verde{border-left-color:var(--verde);background:var(--verde-bg)}
+.callout.amber{border-left-color:var(--amber);background:var(--amber-bg)}
+.callout p{color:var(--muted);font-size:14.5px;line-height:1.7;margin:0}
+.callout p strong{color:var(--text)}
+.callout .label{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:8px;
+}
+.callout.verde .label{color:var(--verde)}
+.callout.amber .label{color:var(--amber)}
+
+/* Livelli rischio */
+.livelli{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}
+.liv{border-radius:8px;padding:16px 18px;border:1px solid var(--line)}
+.liv.alto{background:rgba(255,90,95,.08);border-color:rgba(255,90,95,.2)}
+.liv.medio{background:rgba(245,166,35,.08);border-color:rgba(245,166,35,.2)}
+.liv.basso{background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.2)}
+.liv .pct{
+  font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;
+  margin-bottom:6px;
+}
+.liv.alto .pct{color:#ff5a5f}
+.liv.medio .pct{color:var(--amber)}
+.liv.basso .pct{color:var(--verde)}
+.liv p{font-size:13px;color:var(--muted);line-height:1.5;margin:0}
+
+/* CTA */
+.cta{
+  margin-top:52px;padding-top:32px;border-top:1px solid var(--line);
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.btn{
+  font-family:'Hanken Grotesk',sans-serif;font-size:14px;font-weight:600;
+  padding:11px 22px;border-radius:6px;text-decoration:none;
+  display:inline-flex;align-items:center;gap:8px;transition:.15s;
+}
+.btn-primary{background:var(--accent);color:#001A33}
+.btn-primary:hover{opacity:.88}
+.btn-ghost{
+  background:transparent;color:var(--text);
+  border:1px solid var(--line2);
+}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.cta-note{font-size:13px;color:var(--muted2);margin-left:auto}
+
+@media(max-width:600px){
+  .livelli{grid-template-columns:1fr}
+  .cta{flex-direction:column;align-items:flex-start}
+  .cta-note{margin-left:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="dashboard_manutenzione_predittiva.html">Torna alla dashboard</a>
+
+  <div class="eyebrow">Nota metodologica · A5 / Python · Machine Learning</div>
+  <h1>Come funziona la manutenzione predittiva</h1>
+  <p class="intro">Questo progetto nasce da un problema che conosco bene sul campo: in manutenzione industriale si interviene quasi sempre <em>dopo</em> il guasto. Qui ho usato un modello statistico per anticiparlo — senza scrivere regole a mano, ma lasciando che i dati storici parlassero da soli.</p>
+
+  <hr class="div" style="margin-top:0">
+
+  <!-- BLOCCO 1 -->
+  <div class="block">
+    <div class="block-num">01 · Il problema</div>
+    <h2>Perché la manutenzione reattiva costa troppo</h2>
+    <p>In un'azienda manifatturiera un fermo macchina non pianificato ha un costo medio 3–5 volte superiore a un intervento preventivo: si sommano il costo del tecnico in urgenza, il fermo produzione, i pezzi di ricambio non a magazzino e spesso il danno al cliente.</p>
+    <p>Il problema è che le aziende hanno già i dati per anticipare molti guasti — nello storico degli interventi — ma raramente li usano in modo sistematico. <strong>Si sa quando i macchinari si sono rotti, quanto durano le riparazioni, quali modelli sono più problematici.</strong> Questi dati, analizzati correttamente, permettono di costruire un sistema di allerta preventiva.</p>
+    <div class="callout">
+      <div class="label">Domanda operativa</div>
+      <p>Dati 261 macchinari attivi, <strong>quali hanno la probabilità più alta di guastarsi nelle prossime settimane</strong>, e chi dovrei mandare?</p>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- BLOCCO 2 -->
+  <div class="block">
+    <div class="block-num">02 · La scelta metodologica</div>
+    <h2>Perché un Random Forest, non una regola manuale</h2>
+    <p>La prima alternativa sarebbe stata costruire regole a mano: "se il macchinario ha più di 8 anni e più di 4 interventi nell'ultimo anno, segnalalo come a rischio." Funziona, ma ha un limite: le soglie le decidi tu, a intuizione, e non tengono conto delle interazioni tra variabili.</p>
+    <p>Un <strong>Random Forest</strong> fa la stessa cosa in modo più robusto: costruisce centinaia di alberi decisionali su sottoinsiemi casuali dei dati, poi combina le loro risposte. Il risultato è un modello che impara le soglie dai dati stessi, gestisce bene variabili di tipo diverso (numeri, categorie) e non richiede dati perfettamente puliti.</p>
+    <p>Per dati tabellari industriali come uno storico interventi è la scelta standard — non la più sofisticata, ma quella che dà risultati solidi e interpretabili senza richiedere migliaia di esempi.</p>
+
+    <p style="margin-top:20px"><strong>Le sei variabili che il modello considera per ogni macchinario:</strong></p>
+    <table class="feat-table">
+      <thead>
+        <tr>
+          <th>Variabile</th>
+          <th>Peso sul risultato</th>
+          <th>Perché conta</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Età macchinario<div class="bar" style="width:108px"></div></td>
+          <td>27%</td>
+          <td>I componenti si degradano nel tempo. Coerente con la logica tecnica: i guasti aumentano dopo la "curva a vasca da bagno".</td>
+        </tr>
+        <tr>
+          <td>Ore di utilizzo<div class="bar" style="width:108px"></div></td>
+          <td>27%</td>
+          <td>Due macchinari della stessa età possono avere usure molto diverse se uno lavora su tre turni e l'altro su uno solo.</td>
+        </tr>
+        <tr>
+          <td>Mesi senza intervento<div class="bar" style="width:66px"></div></td>
+          <td>17%</td>
+          <td>Un macchinario non controllato da lungo tempo è statisticamente più a rischio — anche se non ha storia di guasti recenti.</td>
+        </tr>
+        <tr>
+          <td>Interventi ultimi 12 mesi<div class="bar" style="width:54px"></div></td>
+          <td>14%</td>
+          <td>La frequenza crescente di interventi ravvicinati è un segnale classico di degrado accelerato.</td>
+        </tr>
+        <tr>
+          <td>Tipo macchinario<div class="bar" style="width:40px"></div></td>
+          <td>10%</td>
+          <td>Compressori, gruppi frigo e quadri elettrici hanno profili di guasto diversi per natura costruttiva.</td>
+        </tr>
+        <tr>
+          <td>Priorità assegnata<div class="bar" style="width:22px"></div></td>
+          <td>6%</td>
+          <td>Variabile di contesto: riflette l'impatto operativo del macchinario sull'attività produttiva.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout amber">
+      <div class="label">Nota di trasparenza</div>
+      <p>Il modello raggiunge il <strong>75% di accuratezza</strong> sul test set nel classificare correttamente i macchinari a rischio. Intercetta correttamente l'87% dei macchinari sani, ma solo il 42% di quelli realmente a rischio — un limite tipico quando i guasti sono eventi rari nei dati. <strong>Non è uno strumento di decisione automatica, ma di prioritizzazione.</strong> Il responsabile mantiene piena autonomia sulla pianificazione degli interventi.</p>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- BLOCCO 3 -->
+  <div class="block">
+    <div class="block-num">03 · Come leggere i risultati</div>
+    <h2>Dalla probabilità alla decisione operativa</h2>
+    <p>L'output del modello è una <strong>probabilità percentuale di guasto imminente</strong> per ogni macchinario, con una motivazione in linguaggio naturale basata sulle variabili che hanno pesato di più in quel caso specifico.</p>
+
+    <div class="livelli">
+      <div class="liv alto">
+        <div class="pct">≥ 60%</div>
+        <p>Rischio alto — pianificare un controllo entro la settimana</p>
+      </div>
+      <div class="liv medio">
+        <div class="pct">30–60%</div>
+        <p>Rischio medio — inserire nel piano di manutenzione del mese</p>
+      </div>
+      <div class="liv basso">
+        <div class="pct">&lt; 30%</div>
+        <p>Rischio basso — monitoraggio nel ciclo ordinario</p>
+      </div>
+    </div>
+
+    <p>Per ogni macchinario a rischio il sistema suggerisce anche il tecnico in base alla specializzazione (compressori, refrigerazione, quadri elettrici, meccanica). <strong>Il coordinatore valuta disponibilità, zona geografica e carico di lavoro</strong> prima dell'assegnazione definitiva.</p>
+
+    <div class="callout verde">
+      <div class="label">Il principio guida</div>
+      <p><strong>L'AI accelera — l'umano decide.</strong> Il modello ordina il parco macchine per priorità e motiva ogni segnalazione. La decisione su cosa fare, quando e con chi resta al responsabile della manutenzione.</p>
+    </div>
+  </div>
+
+  <div class="cta">
+    <a class="btn btn-primary" href="dashboard_manutenzione_predittiva.html">Apri la dashboard →</a>
+    <a class="btn btn-ghost" href="index.html">Torna al portfolio</a>
+    <span class="cta-note">Alessandro Dardi · Manutenzione Predittiva v1</span>
+  </div>
+
+</div>
+</body>
+</html>
+EOF
