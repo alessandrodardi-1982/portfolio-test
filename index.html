@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alessandro — Problem solving & Automazione</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#001A33;
+    --paper-2:#04223F;
+    --ink:#EAF1FA;
+    --ink-soft:#9DB2CC;
+    --line:#173A63;
+    --amber:#2E9BEC;
+    --teal:#5FB0EF;
+    --teal-soft:#4FA8EE;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);font-family:'Hanken Grotesk',sans-serif;
+    font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.18;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E")}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
+  .mono{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(0,26,51,.82);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;justify-content:space-between;align-items:center;height:64px}
+  .brand{font-family:'Fraunces',serif;font-weight:500;font-size:1.05rem;letter-spacing:-.01em}
+  .brand b{color:var(--amber)}
+  .navlinks{display:flex;gap:28px}
+  .navlinks a{color:var(--ink-soft);text-decoration:none;font-size:.82rem;font-weight:500;transition:color .2s,font-size .2s,font-weight .2s}
+  .navlinks a:hover{color:var(--amber)}
+  .navlinks a.nav-active{color:#2ca1fe;font-size:.92rem;font-weight:700}
+  .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;cursor:pointer;background:none;border:none;padding:4px}
+  .hamburger span{display:block;height:2px;width:100%;background:var(--ink-soft);border-radius:2px;transition:transform .25s,opacity .25s}
+  .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .hamburger.open span:nth-child(2){opacity:0}
+  .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  @media(max-width:680px){
+    .navlinks{display:none;flex-direction:column;position:fixed;top:64px;left:0;right:0;background:rgba(0,26,51,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:20px 24px 28px;gap:0}
+    .navlinks.open{display:flex}
+    .navlinks a{font-size:1rem;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+    .navlinks a:last-child{border-bottom:none}
+    .hamburger{display:flex}
+  }
+
+  header.hero{padding:160px 0 80px;position:relative}
+  .eyebrow{color:var(--amber);margin-bottom:26px;display:flex;align-items:center;gap:12px}
+  .eyebrow::before{content:"";width:34px;height:1px;background:var(--amber)}
+  h1{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(2.6rem,7.5vw,5.4rem);
+    line-height:1.0;letter-spacing:-.02em;margin-bottom:32px}
+  h1 em{font-style:italic;color:var(--teal)}
+  .lead{font-size:clamp(1.05rem,2.2vw,1.32rem);max-width:680px;color:var(--ink-soft);margin-bottom:42px}
+  .lead strong{color:var(--ink);font-weight:600}
+  .cta{display:flex;gap:16px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:9px;padding:14px 24px;border-radius:2px;
+    text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s}
+  .btn-primary{background:var(--amber);color:var(--paper)}
+  .btn-primary:hover{background:var(--teal-soft)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn-ghost:hover{border-color:var(--amber);background:rgba(46,155,236,.12);color:var(--ink)}
+
+  section{padding:80px 0;position:relative}
+  .sec-num{color:var(--amber);margin-bottom:14px;display:block}
+  .sec-head h2{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(1.8rem,4vw,2.7rem);
+    letter-spacing:-.01em;line-height:1.1;max-width:780px}
+  .sec-sub{color:var(--ink-soft);max-width:640px;margin-top:14px}
+
+  .demo-banner{background:rgba(46,155,236,.10);border:1px dashed var(--amber);border-radius:4px;
+    padding:14px 18px;margin:34px 0 46px;font-size:.88rem;color:var(--amber)}
+  .work-note{background:rgba(46,155,236,.08);border:1px dashed var(--amber);border-radius:4px;
+    padding:10px 14px;margin-top:16px;font-size:.82rem;color:var(--amber);line-height:1.5}
+  .demo-banner b{font-weight:700}
+
+  .swgroup{margin-bottom:54px}
+  .swgroup-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;
+    padding-bottom:16px;border-bottom:2px solid var(--amber);margin-bottom:26px}
+  .swgroup-head .swtick{font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--amber)}
+  .swgroup-head .swname{font-family:'Fraunces',serif;font-weight:500;font-size:1.85rem;letter-spacing:-.01em}
+  .swgroup-head .swdesc{color:var(--ink-soft);font-size:.95rem;margin-left:auto}
+  @media(max-width:560px){.swgroup-head .swdesc{margin-left:0;flex-basis:100%}}
+
+  .work{background:var(--paper-2);border:1px solid var(--line);border-radius:5px;overflow:hidden;
+    transition:transform .25s ease,border-color .25s ease}
+  .work:hover{transform:translateY(-3px);border-color:var(--teal)}
+  .work-media{aspect-ratio:16/7;background:
+    repeating-linear-gradient(135deg,transparent 0 18px,rgba(46,155,236,.05) 18px 19px),var(--paper);
+    border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;
+    color:var(--ink-soft);text-align:center;padding:20px}
+  .work-media span{font-family:'JetBrains Mono',monospace;font-size:.74rem;letter-spacing:.08em;opacity:.7}
+  .work-body{padding:32px}
+  .work-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .badge-learned{font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--amber);border:1px solid rgba(46,155,236,.4);padding:5px 10px;border-radius:2px}
+  .work h4{font-family:'Fraunces',serif;font-weight:500;font-size:1.45rem;line-height:1.15;margin-bottom:20px}
+  .work-rows{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .row .mono{color:var(--amber);display:block;margin-bottom:5px}
+  .row p{font-size:.93rem;color:var(--ink-soft)}
+  .row p strong{color:var(--ink);font-weight:600}
+  .work-aux{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px}
+  .work-aux span{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--teal);
+    border:1px solid rgba(95,176,239,.35);padding:4px 9px;border-radius:2px}
+  @media(max-width:680px){.work-rows{grid-template-columns:1fr;gap:16px}.work-body{padding:24px}}
+
+  .sw-empty{border:1px dashed var(--line);border-radius:5px;padding:30px;text-align:center;
+    color:var(--ink-soft);font-size:.92rem}
+  .sw-empty .mono{color:var(--amber);display:block;margin-bottom:8px}
+
+  #strumenti{background:var(--paper-2)}
+  .tools{display:flex;flex-wrap:wrap;gap:11px;margin-top:30px}
+  .tool{font-size:.9rem;font-weight:500;padding:9px 16px;border:1px solid var(--line);border-radius:2px;background:var(--paper)}
+  .tool .mono{color:var(--ink-soft);margin-left:7px}
+
+  #contatti{padding-bottom:60px}
+  .contact-box{text-align:center;max-width:620px;margin:0 auto}
+  .contact-box h2{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(2rem,5vw,3.2rem);
+    line-height:1.08;margin-bottom:24px;letter-spacing:-.01em}
+  .contact-box h2 em{font-style:italic;color:var(--teal)}
+  .contact-box p{color:var(--ink-soft);margin-bottom:34px}
+  .contact-links{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+  footer{border-top:1px solid var(--line);padding:30px 0;color:var(--ink-soft)}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  #analisi-dati{background:var(--paper)}
+  .dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;margin-top:42px}
+  .dash-card{background:var(--paper-2);border:1px solid var(--line);border-radius:5px;overflow:hidden;
+    display:flex;flex-direction:column;transition:transform .25s ease,border-color .25s ease}
+  .dash-card:hover{transform:translateY(-3px);border-color:var(--teal)}
+  .dash-preview{aspect-ratio:16/9;background:var(--paper);border-bottom:1px solid var(--line);
+    position:relative;overflow:hidden}
+  .dash-preview iframe{width:200%;height:200%;transform:scale(.5);transform-origin:top left;
+    border:none;pointer-events:none;display:block}
+  .dash-preview-overlay{position:absolute;inset:0;z-index:2}
+  .dash-preview-icon{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--amber);background:rgba(0,26,51,.85);
+    border:1px solid rgba(46,155,236,.25);padding:5px 11px;border-radius:2px;
+    position:absolute;bottom:10px;left:10px;z-index:3}
+  .dash-body{padding:24px;flex:1;display:flex;flex-direction:column;gap:10px}
+  .dash-body h4{font-family:'Fraunces',serif;font-weight:500;font-size:1.2rem;line-height:1.2}
+  .dash-body p{font-size:.88rem;color:var(--ink-soft);flex:1}
+  .dash-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+  .dash-tags span{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--teal);
+    border:1px solid rgba(95,176,239,.3);padding:3px 8px;border-radius:2px}
+  .dash-link{display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:10px 18px;
+    background:transparent;border:1px solid var(--line);border-radius:2px;color:var(--ink);
+    text-decoration:none;font-size:.82rem;font-weight:600;transition:all .2s;align-self:flex-start;
+    position:relative;z-index:5}
+  .dash-link:hover{border-color:var(--amber);background:rgba(46,155,236,.12);color:var(--amber)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">Alessandro <b>·</b> Dardi</div>
+    <div class="navlinks">
+      <a href="#chi-sono">Chi sono</a>
+      <a href="#lavori">Lavori</a>
+      <a href="#analisi-dati">Analisi Dati</a>
+      <a href="#applicativi">Applicativi</a>
+      <a href="#agente-ai">Agente AI</a>
+      <a href="#strumenti">Strumenti</a>
+      <a href="#contatti">Contatti</a>
+    </div>
+    <button class="hamburger" aria-label="Menu" id="hamburger">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow mono reveal">Operations · Automazione · Bologna</div>
+    <h1 class="reveal">Ogni obiettivo ha lo <em>strumento giusto</em> per raggiungerlo.</h1>
+    <p class="lead reveal">Penso la soluzione, scelgo lo strumento per costruirla. Vengo dalle operations industriali: <strong>qui sotto non trovi un curriculum, trovi le prove.</strong></p>
+    <div class="cta reveal">
+      <a class="btn btn-primary" href="https://www.linkedin.com/in/alessandro-dardi/" target="_blank">LinkedIn →</a>
+      <a class="btn btn-ghost" href="#analisi-dati">Vedi i lavori</a>
+    </div>
+  </div>
+</header>
+
+<!-- SEZIONE CHI SONO -->
+<section id="chi-sono" style="background:var(--paper-2);padding:72px 0;">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num mono">00 / Chi sono</span>
+      <h2>Dall'industria all'<em>automazione</em>.</h2>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:48px;margin-top:32px;flex-wrap:wrap;">
+      <div class="reveal" style="flex-shrink:0;">
+        <img src="foto_profilo.png" alt="Alessandro Dardi"
+          style="width:160px;height:160px;border-radius:50%;object-fit:cover;object-position:center top;
+          border:2px solid var(--line);display:block;">
+      </div>
+      <div style="max-width:640px;flex:1;min-width:260px;">
+        <p class="reveal" style="font-size:1.08rem;line-height:1.8;color:var(--ink-soft);margin-bottom:22px;">
+          Laurea in Ingegneria Gestionale a Bologna, otto anni nelle operations industriali — aria compressa, refrigerazione, impianti — dove ho coordinato tecnici, gestito fornitori, seguito clienti dalla preventivazione alla chiusura intervento. Ho imparato a leggere i problemi prima che diventino emergenze e a tenere insieme persone, dati e scadenze.
+        </p>
+        <p class="reveal" style="font-size:1.08rem;line-height:1.8;color:var(--ink-soft);margin-bottom:22px;">
+          Negli ultimi anni ho aggiunto un layer diverso: automazione dei processi, analisi dati, AI applicata. Non per cambiare mestiere, ma per fare meglio quello che so già fare — e per portare quella mentalità in contesti che ne hanno bisogno.
+        </p>
+        <p class="reveal" style="font-size:1.08rem;line-height:1.8;color:var(--ink-soft);">
+          Cerco un ruolo dove contino entrambe le cose: l'esperienza sul campo e la capacità di trasformarla in strumenti.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SEZIONE LAVORI -->
+<section id="lavori">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num mono">01 / Lavori</span>
+      <h2>Cosa faccio, software per software.</h2>
+      <p class="sec-sub">Strumenti diversi per problemi diversi: imparo quello che serve di volta in volta. Ogni blocco raccoglie i lavori fatti con quello strumento.</p>
+    </div>
+
+    <div class="swgroup reveal">
+      <div class="swgroup-head">
+        <span class="swtick">A1</span>
+        <span class="swname">n8n</span>
+        <span class="swdesc">Automazione di processi ripetitivi</span>
+      </div>
+      <div class="work">
+        <div class="work-media">
+          <img src="workflow_n8n.jpg" alt="Workflow n8n — Report Settimanale Automatico" style="width:100%;height:100%;object-fit:cover;object-position:center;">
+        </div>
+        <div class="work-body">
+          <div class="work-top"><span class="badge-learned">Strumento nuovo per me</span></div>
+          <h4>Report settimanale automatico con Claude API</h4>
+          <div class="work-rows">
+            <div class="row"><span class="mono">Problema</span><p>I dati degli interventi tecnici erano su Google Sheets ma <strong>nessuno li leggeva ogni settimana.</strong></p></div>
+            <div class="row"><span class="mono">Come</span><p>n8n legge i dati ogni venerdì, li passa a Claude API che genera una dashboard HTML, salvata su Drive e inviata via email.</p></div>
+            <div class="row"><span class="mono">Risultato</span><p>Report professionale consegnato in automatico ogni settimana — zero intervento manuale.</p></div>
+          </div>
+          <div class="work-aux"><span>+ Google Sheets</span><span>+ Claude API</span><span>+ GitHub Pages</span><span>+ Gmail</span></div>
+          <a class="dash-link" href="https://alessandro-dardi.netlify.app/card_progetto_n8n.html" target="_blank">Scopri il progetto →</a>
+          <p class="work-note"><b>Nota:</b> Le dashboard utilizzano dati rappresentativi generati a scopo dimostrativo, strutturati su casi reali del mio percorso professionale.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="swgroup reveal">
+      <div class="swgroup-head">
+        <span class="swtick">A2</span>
+        <span class="swname">Tableau</span>
+        <span class="swdesc">Dashboard e visualizzazione dati</span>
+      </div>
+      <div class="work">
+        <div class="work-media" style="aspect-ratio:16/7;padding:0;background:var(--paper);display:block;position:relative;overflow:hidden;">
+          <iframe src="https://public.tableau.com/views/PerformanceFornitoriH12026/PerformanceFornitoriH12026?:showVizHome=no&:embed=true" loading="lazy" title="Dashboard Tableau Performance Fornitori" style="width:200%;height:200%;transform:scale(.5);transform-origin:top left;border:none;pointer-events:none;display:block;"></iframe>
+          <div class="dash-preview-overlay"></div>
+          <span class="dash-preview-icon">Performance Fornitori H1 2026</span>
+        </div>
+        <div class="work-body">
+          <div class="work-top"><span class="badge-learned">Strumento nuovo per me</span></div>
+          <h4>Analisi performance fornitori — Tableau Public</h4>
+          <div class="work-rows">
+            <div class="row"><span class="mono">Contesto</span><p>In operations, la gestione fornitori è centrale: sapere chi è affidabile, chi costa di più e chi genera problemi è una decisione che si prende ogni giorno. Ho costruito questa analisi per dimostrare come i dati possono supportarla.</p></div>
+            <div class="row"><span class="mono">Come l'ho costruita</span><p>Dati strutturati su 7 fornitori e 6 mesi: valore ordini, puntualità consegne, qualità media, reclami. Quattro visualizzazioni complementari — ranking, scatter qualità/puntualità, trend mensile, reclami — assemblate in una dashboard interattiva su Tableau Public.</p></div>
+            <div class="row"><span class="mono">Cosa emerge</span><p>Il fornitore con il volume più alto è anche quello con più reclami e puntualità sotto il 80%. Lo scatter lo mostra a colpo d'occhio: costo e affidabilità non vanno sempre nella stessa direzione.</p></div>
+          </div>
+          <div class="work-aux"><span>+ Ranking fornitori</span><span>+ Qualità vs puntualità</span><span>+ Trend costi</span><span>+ Analisi reclami</span></div>
+          <a class="dash-link" href="https://public.tableau.com/app/profile/alessandro.dardi/viz/PerformanceFornitoriH12026/PerformanceFornitoriH12026" target="_blank">Apri la dashboard →</a>
+          <p class="work-note"><b>Nota:</b> Le dashboard utilizzano dati rappresentativi generati a scopo dimostrativo, strutturati su casi reali del mio percorso professionale.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="swgroup reveal">
+      <div class="swgroup-head">
+        <span class="swtick">A3</span>
+        <span class="swname">Excel avanzato</span>
+        <span class="swdesc">Analisi e modelli di calcolo</span>
+      </div>
+      <div class="work">
+        <!-- GALLERIA SCREENSHOT -->
+        <div class="work-media" style="aspect-ratio:unset;padding:0;background:var(--paper);display:block;position:relative;">
+          <!-- tabs -->
+          <div style="display:flex;gap:0;border-bottom:1px solid var(--line);">
+            <button onclick="showTab(0)" id="tab0"
+              style="font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.08em;
+              text-transform:uppercase;padding:10px 18px;border:none;cursor:pointer;
+              background:var(--amber);color:var(--paper);font-weight:700;border-right:1px solid var(--line);">
+              Dashboard
+            </button>
+            <button onclick="showTab(1)" id="tab1"
+              style="font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.08em;
+              text-transform:uppercase;padding:10px 18px;border:none;cursor:pointer;
+              background:var(--paper-2);color:var(--ink-soft);border-right:1px solid var(--line);">
+              Analisi
+            </button>
+            <button onclick="showTab(2)" id="tab2"
+              style="font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.08em;
+              text-transform:uppercase;padding:10px 18px;border:none;cursor:pointer;
+              background:var(--paper-2);color:var(--ink-soft);">
+              Dati
+            </button>
+          </div>
+          <div id="excel-tab0" style="display:block;">
+            <img src="dashboard_pag_1.jpg" alt="Dashboard Excel — KPI e grafici"
+              style="width:100%;display:block;">
+          </div>
+          <div id="excel-tab1" style="display:none;">
+            <img src="pag_2_ok.jpg" alt="Foglio Analisi — SUMIF, SUMPRODUCT, IFERROR"
+              style="width:100%;display:block;">
+          </div>
+          <div id="excel-tab2" style="display:none;">
+            <img src="pag_3_ok.jpg" alt="Foglio Dati — Tabella strutturata 150 righe"
+              style="width:100%;display:block;">
+          </div>
+        </div>
+        <div class="work-body">
+          <div class="work-top"><span class="badge-learned">Competenza consolidata</span></div>
+          <h4>Analisi costi manutenzione — Dashboard Excel con formule avanzate</h4>
+          <div class="work-rows">
+            <div class="row"><span class="mono">Problema</span><p>I costi di manutenzione erano distribuiti per fornitore e reparto, senza una vista integrata che permettesse di <strong>confrontare spesa reale e budget.</strong></p></div>
+            <div class="row"><span class="mono">Come</span><p>Tabella strutturata su 150 righe, foglio Analisi con SUMIF, COUNTIF, SUMPRODUCT per mese e IFERROR. Dashboard con 4 KPI e 3 grafici collegati ai dati.</p></div>
+            <div class="row"><span class="mono">Risultato</span><p>Vista completa: spesa per centro di costo, andamento mensile vs budget, ripartizione per tipo intervento — tutto aggiornabile in automatico.</p></div>
+          </div>
+          <div class="work-aux">
+            <span>+ Tabella strutturata</span><span>+ SUMIF / COUNTIF</span><span>+ SUMPRODUCT</span><span>+ Grafici dinamici</span><span>+ Dashboard KPI</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="swgroup reveal">
+      <div class="swgroup-head">
+        <span class="swtick">A4</span>
+        <span class="swname">AI applicata</span>
+        <span class="swdesc">Strumenti basati su LLM nei processi</span>
+      </div>
+      <div class="sw-body">
+        <div class="sw-preview">
+          <div style="width:100%;height:0;padding-bottom:43%;position:relative;overflow:hidden;border-radius:4px;background:#0a0e1a;">
+            <iframe src="https://tecnoservice-chat.netlify.app/chat_assistenza.html"
+              style="position:absolute;top:0;left:0;width:200%;height:200%;transform:scale(0.5);transform-origin:top left;border:none;pointer-events:none;"
+              loading="lazy"></iframe>
+          </div>
+        </div>
+        <div class="sw-content">
+          <div class="work-top"><span class="badge-learned">Strumento nuovo per me</span></div>
+          <h4>Chat AI per raccolta richieste di assistenza tecnica</h4>
+          <div class="work-rows">
+            <div class="row"><span class="mono">Problema</span><p>Le richieste di assistenza arrivano in modo disorganizzato — email, telefonate, messaggi — senza una struttura che permetta di <strong>classificare urgenza, tipo di guasto e macchinario coinvolto.</strong></p></div>
+            <div class="row"><span class="mono">Come</span><p>Chat conversazionale con Claude API: raccoglie le informazioni tramite domande mirate, poi una seconda chiamata dedicata estrae i dati strutturati e genera un ticket con ID univoco salvato in locale.</p></div>
+            <div class="row"><span class="mono">Risultato</span><p>Da una descrizione libera del problema a un ticket classificato (macchinario, sintomo, urgenza, categoria) in meno di 2 minuti — senza form da compilare.</p></div>
+          </div>
+          <div class="work-aux">
+            <span>+ Claude API</span><span>+ Netlify Functions</span><span>+ Proxy serverless</span><span>+ Gestione ticket</span>
+          </div>
+          <div style="margin-top:18px;padding:14px 16px;background:rgba(34,197,94,0.06);border:1px dashed rgba(34,197,94,0.35);border-radius:6px;">
+            <p style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#22c55e;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">💶 Costo operativo indicativo</p>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
+              <div style="background:rgba(0,0,0,.2);border-radius:4px;padding:8px 10px;">
+                <p style="font-size:.68rem;color:#6b7fa3;margin-bottom:3px;">Claude API</p>
+                <p style="font-size:.85rem;font-weight:600;color:#e8edf5;">~$0.003 / chat</p>
+              </div>
+              <div style="background:rgba(0,0,0,.2);border-radius:4px;padding:8px 10px;">
+                <p style="font-size:.68rem;color:#6b7fa3;margin-bottom:3px;">Hosting Netlify</p>
+                <p style="font-size:.85rem;font-weight:600;color:#e8edf5;">gratuito</p>
+              </div>
+              <div style="background:rgba(0,0,0,.2);border-radius:4px;padding:8px 10px;">
+                <p style="font-size:.68rem;color:#6b7fa3;margin-bottom:3px;">500 richieste/mese</p>
+                <p style="font-size:.85rem;font-weight:600;color:#22c55e;">~$1.50 / mese</p>
+              </div>
+            </div>
+            <p style="font-size:.78rem;color:#94a3b8;line-height:1.5;">Accessibile anche per una PMI. I costi crescono solo con i volumi — e rimangono proporzionali al valore generato.</p>
+          </div>
+          <a class="dash-link" href="https://tecnoservice-chat.netlify.app/chat_assistenza.html" target="_blank">Prova la chat →</a>
+          <p class="work-note"><b>Nota:</b> Scenario dimostrativo — TecnoService Industriale Srl è un'azienda fittizia creata per illustrare il caso d'uso.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="swgroup reveal">
+      <div class="swgroup-head">
+        <span class="swtick">A5</span>
+        <span class="swname">Python / Machine Learning</span>
+        <span class="swdesc">Modelli predittivi su dati operativi</span>
+      </div>
+      <div class="work">
+        <div class="work-media" style="aspect-ratio:16/7;padding:0;background:var(--paper);display:block;position:relative;overflow:hidden;">
+          <iframe src="https://alessandro-dardi.netlify.app/dashboard_manutenzione_predittiva.html" loading="lazy" title="Dashboard Manutenzione Predittiva" style="width:200%;height:200%;transform:scale(.5);transform-origin:top left;border:none;pointer-events:none;display:block;"></iframe>
+          <div class="dash-preview-overlay"></div>
+          <span class="dash-preview-icon">Manutenzione Predittiva — Random Forest</span>
+        </div>
+        <div class="work-body">
+          <div class="work-top"><span class="badge-learned">Strumento nuovo per me</span></div>
+          <h4>Manutenzione predittiva — previsione guasti con Random Forest</h4>
+          <div class="work-rows">
+            <div class="row"><span class="mono">Problema</span><p>In manutenzione si interviene <strong>quando il guasto è già successo.</strong> Capire in anticipo quali macchinari rischiano di fermarsi permette di programmare gli interventi invece di subirli.</p></div>
+            <div class="row"><span class="mono">Come</span><p>Un modello Random Forest (scikit-learn) addestrato su 500 interventi pesa età, ore di utilizzo, frequenza guasti recenti e tipo di macchinario per stimare la probabilità di guasto imminente di ciascuno.</p></div>
+            <div class="row"><span class="mono">Risultato</span><p>Parco macchine ordinato per rischio, con la motivazione in chiaro e il tecnico consigliato per specializzazione. 75% di accuratezza sul test, lista esportabile in CSV.</p></div>
+          </div>
+          <div class="work-aux"><span>+ Python</span><span>+ pandas</span><span>+ scikit-learn</span><span>+ Random Forest</span></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <a class="dash-link" href="https://alessandro-dardi.netlify.app/dashboard_manutenzione_predittiva.html" target="_blank">Apri la dashboard →</a>
+            <a class="dash-link" href="https://github.com/alessandrodardi-1982/portfolio/blob/HEAD/manutenzione_predittiva.py" target="_blank">Vedi il codice →</a>
+          </div>
+          <p class="work-note"><b>Nota:</b> Dataset fittizio realistico (500 interventi). Il modello illustra l'approccio metodologico, non una previsione operativa reale — l'AI individua i candidati a rischio, la decisione resta all'uomo.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SEZIONE ANALISI DATI -->
+<section id="analisi-dati">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num mono">02 / Analisi Dati</span>
+      <h2>Dashboard generate con AI.</h2>
+      <p class="sec-sub">Report interattivi costruiti con Claude API a partire da dati reali: KPI operativi, interventi tecnici, analisi geografiche.</p>
+    </div>
+    <div class="demo-banner reveal">
+      <b>Nota:</b> Le dashboard utilizzano dati rappresentativi generati a scopo dimostrativo, strutturati su casi reali del mio percorso professionale.
+    </div>
+    <div class="dash-grid">
+
+      <div class="dash-card reveal">
+        <div class="dash-preview">
+          <iframe src="https://alessandro-dardi.netlify.app/dashboard_manutenzione_v2.html" loading="lazy" title="Dashboard Manutenzione"></iframe>
+          <div class="dash-preview-overlay"></div>
+          <span class="dash-preview-icon">Manutenzione Industriale</span>
+        </div>
+        <div class="dash-body">
+          <h4>Dashboard CRM — Interventi Tecnici</h4>
+          <p>Nel mio lavoro coordinavo interventi tecnici su impianti di aria compressa e refrigerazione. I dati erano distribuiti tra Excel e CRM, senza una vista unificata. Ho ricreato la struttura del problema con dati rappresentativi e costruito questo report automatico tramite Claude API.</p>
+          <div class="dash-tags"><span>Claude API</span><span>CSV</span><span>KPI operativi</span></div>
+          <a class="dash-link" href="https://alessandro-dardi.netlify.app/dashboard_manutenzione_v2.html" target="_blank">Apri dashboard →</a>
+        </div>
+      </div>
+
+      <div class="dash-card reveal">
+        <div class="dash-preview">
+          <iframe src="https://alessandro-dardi.netlify.app/dashboard_ceo_v2.html" loading="lazy" title="Dashboard CEO"></iframe>
+          <div class="dash-preview-overlay"></div>
+          <span class="dash-preview-icon">Executive Report</span>
+        </div>
+        <div class="dash-body">
+          <h4>Dashboard CEO — KPI Aziendali</h4>
+          <p>Simulazione di un report executive costruito per supportare decisioni strategiche. L'obiettivo era dimostrare come trasformare dati grezzi in una vista chiara per chi deve decidere: margini, andamenti e aree critiche in un colpo d'occhio.</p>
+          <div class="dash-tags"><span>Claude API</span><span>D3.js</span><span>Mappa USA</span></div>
+          <a class="dash-link" href="https://alessandro-dardi.netlify.app/dashboard_ceo_v2.html" target="_blank">Apri dashboard →</a>
+        </div>
+      </div>
+
+      <div class="dash-card reveal">
+        <div class="dash-preview">
+          <iframe src="https://alessandro-dardi.netlify.app/mappa_usa_v2.html" loading="lazy" title="Mappa USA"></iframe>
+          <div class="dash-preview-overlay"></div>
+          <span class="dash-preview-icon">Analisi Geografica</span>
+        </div>
+        <div class="dash-body">
+          <h4>Mappa Choropleth — USA per Stato</h4>
+          <p>Estensione visiva della dashboard CEO: stessa base dati, rappresentata geograficamente stato per stato. L'obiettivo era rendere immediatamente leggibile dove il business performa e dove no — senza tabelle, solo colore e impatto visivo.</p>
+          <div class="dash-tags"><span>D3.js</span><span>TopoJSON</span><span>Interattiva</span></div>
+          <a class="dash-link" href="https://alessandro-dardi.netlify.app/mappa_usa_v2.html" target="_blank">Apri dashboard →</a>
+        </div>
+      </div>
+
+      <div class="dash-card reveal">
+        <div class="dash-preview">
+          <iframe src="https://alessandro-dardi.netlify.app/dashboard_ita_v2.html" loading="lazy" title="Dashboard ITA"></iframe>
+          <div class="dash-preview-overlay"></div>
+          <span class="dash-preview-icon">Report Italia</span>
+        </div>
+        <div class="dash-body">
+          <h4>Dashboard Italiana — Analisi Operativa</h4>
+          <p>Un esempio più essenziale rispetto agli altri: mostra che lo stesso approccio — dati CSV, Claude API, output HTML — funziona anche per report operativi semplici, non solo per viste executive elaborate.</p>
+          <div class="dash-tags"><span>Claude API</span><span>Italiano</span><span>Automazione</span></div>
+          <a class="dash-link" href="https://alessandro-dardi.netlify.app/dashboard_ita_v2.html" target="_blank">Apri dashboard →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SEZIONE APPLICATIVI -->
+<section id="applicativi" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num mono">02 / Applicativi</span>
+      <h2>Strumenti operativi, non solo analisi.</h2>
+      <p class="sec-sub">Progettare un applicativo funzionante richiede una logica diversa da una dashboard: bisogna pensare a chi lo usa, cosa fa, come si muove tra i dati. Questi progetti lo dimostrano.</p>
+    </div>
+
+    <div class="dash-grid" style="margin-top:42px">
+      <div class="dash-card reveal" style="grid-column:1/-1;max-width:640px;">
+        <div class="dash-preview" style="aspect-ratio:16/7;background:linear-gradient(135deg,#0a0f1e 0%,#161d2e 60%,#1c2538 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;color:#2ca1fe;letter-spacing:0.05em;">◆ CRM Suite</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#4e5d78;letter-spacing:0.12em;text-transform:uppercase;">Clienti · Interventi · Pipeline</span>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#22c55e;border:1px solid rgba(34,197,94,0.25);padding:3px 9px;border-radius:3px;">12 clienti</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#2ca1fe;border:1px solid rgba(44,161,254,0.25);padding:3px 9px;border-radius:3px;">38 interventi</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#a78bfa;border:1px solid rgba(167,139,250,0.25);padding:3px 9px;border-radius:3px;">9 opportunità</span>
+          </div>
+        </div>
+        <div class="dash-body">
+          <h4>CRM per PMI — Gestione Clienti, Interventi e Pipeline</h4>
+          <p>Le piccole e medie imprese di servizi tecnici spesso gestiscono clienti, interventi e opportunità commerciali su fogli Excel separati. Ho progettato un CRM operativo completo che centralizza tutto in un unico strumento: anagrafica clienti, storico interventi tecnici (con filtri per stato e priorità), pipeline commerciale Kanban e dashboard KPI. <span style="opacity:0.55;">Applicativo demo — i dati sono di esempio e girano interamente nel browser.</span></p>
+          <div class="dash-tags">
+            <span>HTML/CSS/JS</span><span>UX operativa</span><span>CRM design</span><span>Service management</span>
+          </div>
+          <a class="dash-link" href="https://alessandro-dardi.netlify.app/crm_pmi.html" target="_blank">Apri il CRM →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SEZIONE AGENTE AI -->
+<section id="agente-ai" style="background:var(--paper)">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num mono">03 / Agente AI</span>
+      <h2>L'AI analizza e suggerisce.<br><em>L'umano valuta e decide.</em></h2>
+      <p class="sec-sub">Un agente operativo per il triage delle richieste di supporto tecnico industriale. Dimostra come AI e processo umano possano collaborare — mantenendo il controllo dove conta.</p>
+    </div>
+
+    <div class="dash-grid" style="margin-top:42px">
+      <div class="dash-card reveal" style="grid-column:1/-1;max-width:720px;">
+        <div class="dash-preview" style="aspect-ratio:16/7;background:linear-gradient(135deg,#0a0e1a 0%,#0f1525 50%,#141b2e 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:24px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;color:#2ca1fe;letter-spacing:0.05em;">🤖 Agente AI — Supporto Tecnico</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#5a7090;letter-spacing:0.12em;text-transform:uppercase;">TecnoService Industriale Srl · Bologna</span>
+          <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap;justify-content:center;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#ef4444;border:1px solid rgba(239,68,68,0.25);padding:3px 9px;border-radius:3px;">Urgenza alta → 🔴</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#2ca1fe;border:1px solid rgba(44,161,254,0.25);padding:3px 9px;border-radius:3px;">Tecnico suggerito dall'AI</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#f59e0b;border:1px solid rgba(245,158,11,0.25);padding:3px 9px;border-radius:3px;">Revisione umana richiesta</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#22c55e;border:1px solid rgba(34,197,94,0.25);padding:3px 9px;border-radius:3px;">Approvazione → Invio</span>
+          </div>
+        </div>
+        <div class="dash-body">
+          <h4>Triage intelligente delle richieste di supporto tecnico</h4>
+          <p>Le richieste di assistenza tecnica arrivano in forma libera e devono essere classificate, assegnate e gestite rapidamente. Ho costruito un agente AI che riceve la segnalazione, classifica urgenza e tipologia di guasto, suggerisce il tecnico più adatto e genera una bozza di risposta per il cliente e per la coordinatrice. Il responsabile rivede, può modificare il tecnico suggerito, e approva prima dell'invio. Il tecnico risponde direttamente con presa in carico o segnalazione di non disponibilità. L'AI accelera — l'umano decide.</p>
+          <div class="dash-tags">
+            <span>Claude API</span><span>Agente AI</span><span>Service management</span><span>Triage automatico</span><span>Human-in-the-loop</span>
+          </div>
+          <a class="dash-link" href="agente_supporto.html" target="_blank">Prova l'agente →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SEZIONE STRUMENTI -->
+<section id="strumenti">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num mono">04 / Strumenti</span>
+      <h2>Strumenti che uso, progetti che lo dimostrano.</h2>
+      <p class="sec-sub">La lista cresce ogni volta che un problema chiede uno strumento nuovo.</p>
+    </div>
+    <div class="tools reveal">
+      <span class="tool">n8n</span>
+      <span class="tool">Automazione processi</span>
+      <span class="tool">AI applicata <span class="mono">LLM</span></span>
+      <span class="tool">Tableau</span>
+      <span class="tool">Excel avanzato</span>
+      <span class="tool">Data analysis</span>
+      <span class="tool">JavaScript <span class="mono">base</span></span>
+      <span class="tool">CRM</span>
+      <span class="tool">Docker <span class="mono">base</span></span>
+      <span class="tool">GitHub <span class="mono">pages</span></span>
+      <span class="tool">Netlify</span>
+    </div>
+  </div>
+</section>
+
+<!-- SEZIONE CONTATTI -->
+<section id="contatti">
+  <div class="wrap">
+    <div class="contact-box reveal">
+      <span class="sec-num mono" style="display:block;margin-bottom:14px">05 / Contatti</span>
+      <h2>Cerco il contesto giusto<br>dove <em>fare la differenza</em>.</h2>
+      <p>Aperto a nuove opportunità in operations, digital transformation e automazione dei processi. Se cerchi un profilo che unisce esperienza industriale e mentalità digitale, scrivimi.</p>
+      <div class="contact-links">
+        <a class="btn btn-primary" href="https://www.linkedin.com/in/alessandro-dardi/" target="_blank">LinkedIn →</a>
+      </div>
+      <div style="margin-top:28px;display:flex;flex-direction:column;gap:10px;align-items:center;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--ink-soft);">
+          <span style="color:var(--amber);margin-right:8px;">✉</span>alessandro.dardi@gmail.com
+        </span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--ink-soft);">
+          <span style="color:var(--amber);margin-right:8px;">☎</span>+39 335 70 57 649
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="mono">© 2026 Alessandro Dardi · Bologna</span>
+    <span class="mono">Le prove, non le promesse</span>
+  </div>
+</footer>
+
+<script>
+  function showTab(idx){
+    [0,1,2].forEach(i=>{
+      document.getElementById('excel-tab'+i).style.display = i===idx ? 'block' : 'none';
+      const btn = document.getElementById('tab'+i);
+      btn.style.background = i===idx ? 'var(--amber)' : 'var(--paper-2)';
+      btn.style.color = i===idx ? 'var(--paper)' : 'var(--ink-soft)';
+      btn.style.fontWeight = i===idx ? '700' : '400';
+    });
+  }
+
+  // Hamburger menu
+  const hamburger = document.getElementById('hamburger');
+  const navlinksEl = document.querySelector('.navlinks');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    navlinksEl.classList.toggle('open');
+  });
+  navlinksEl.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      navlinksEl.classList.remove('open');
+    });
+  });
+
+  // Navbar active section tracking
+  const navLinks = document.querySelectorAll('.navlinks a');
+  const sectionIds = ['chi-sono','lavori','analisi-dati','applicativi','agente-ai','strumenti','contatti'];
+  const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+
+  const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        navLinks.forEach(a => {
+          a.classList.toggle('nav-active', a.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+  sections.forEach(s => navObserver.observe(s));
+
+  const io=new IntersectionObserver((es)=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{
+    el.style.transitionDelay=(Math.min(i,6)*60)+'ms';io.observe(el);
+  });
+</script>
+</body>
+</html>

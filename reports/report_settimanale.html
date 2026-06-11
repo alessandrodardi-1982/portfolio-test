@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Interventi Tecnici</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-primary: #0a0e1a;
+    --bg-secondary: #0d1526;
+    --bg-card: #111827;
+    --bg-card-hover: #162035;
+    --border: #1e3a5f;
+    --accent-blue: #1d6fa4;
+    --accent-cyan: #00c8e0;
+    --accent-teal: #0891b2;
+    --accent-green: #10b981;
+    --accent-yellow: #f59e0b;
+    --accent-red: #ef4444;
+    --accent-purple: #8b5cf6;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --gradient-1: linear-gradient(135deg, #1d6fa4, #00c8e0);
+    --gradient-2: linear-gradient(135deg, #0891b2, #10b981);
+    --gradient-3: linear-gradient(135deg, #8b5cf6, #1d6fa4);
+    --gradient-4: linear-gradient(135deg, #f59e0b, #ef4444);
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #0d1526 0%, #0a1628 50%, #0d1e3a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+
+  .header-left { display: flex; align-items: center; gap: 16px; }
+
+  .header-icon {
+    width: 44px; height: 44px;
+    background: var(--gradient-1);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 0 20px rgba(0,200,224,0.3);
+  }
+
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #e2e8f0, #00c8e0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .header-right {
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .badge-live {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--accent-green);
+  }
+
+  .dot-live {
+    width: 7px; height: 7px;
+    background: var(--accent-green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .header-date {
+    font-size: 13px;
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+  }
+
+  /* MAIN */
+  .main { padding: 28px 32px; }
+
+  /* KPI SECTION */
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .kpi-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .kpi-card.c1::before { background: var(--gradient-1); }
+  .kpi-card.c2::before { background: var(--gradient-4); }
+  .kpi-card.c3::before { background: var(--gradient-2); }
+  .kpi-card.c4::before { background: var(--gradient-3); }
+
+  .kpi-card::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; right: -30px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    opacity: 0.04;
+  }
+
+  .kpi-card.c1::after { background: var(--accent-cyan); }
+  .kpi-card.c2::after { background: var(--accent-yellow); }
+  .kpi-card.c3::after { background: var(--accent-green); }
+  .kpi-card.c4::after { background: var(--accent-purple); }
+
+  .kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    border-color: rgba(0,200,224,0.2);
+  }
+
+  .kpi-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 14px;
+  }
+
+  .kpi-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+  }
+
+  .kpi-icon {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .kpi-card.c1 .kpi-icon { background: rgba(0,200,224,0.12); }
+  .kpi-card.c2 .kpi-icon { background: rgba(245,158,11,0.12); }
+  .kpi-card.c3 .kpi-icon { background: rgba(16,185,129,0.12); }
+  .kpi-card.c4 .kpi-icon { background: rgba(139,92,246,0.12); }
+
+  .kpi-value {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .kpi-card.c1 .kpi-value { color: var(--accent-cyan); }
+  .kpi-card.c2 .kpi-value { color: var(--accent-yellow); }
+  .kpi-card.c3 .kpi-value { color: var(--accent-green); }
+  .kpi-card.c4 .kpi-value { color: var(--accent-purple); }
+
+  .kpi-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* STATO MINI */
+  .stato-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stato-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 22px;
+    display: flex; align-items: center; gap: 16px;
+    transition: transform 0.2s;
+  }
+
+  .stato-card:hover { transform: translateY(-2px); }
+
+  .stato-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .sc-green { background: rgba(16,185,129,0.15); color: var(--accent-green); border: 2px solid rgba(16,185,129,0.3); }
+  .sc-blue  { background: rgba(0,200,224,0.12); color: var(--accent-cyan);  border: 2px solid rgba(0,200,224,0.25); }
+  .sc-yellow{ background: rgba(245,158,11,0.12); color: var(--accent-yellow);border: 2px solid rgba(245,158,11,0.25);}
+
+  .stato-info { flex: 1; }
+  .stato-name { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+  .stato-count { font-size: 12px; color: var(--text-muted); }
+
+  .stato-bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+  .stato-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+  .sf-green { background: var(--accent-green); }
+  .sf-blue  { background: var(--accent-cyan); }
+  .sf-yellow{ background: var(--accent-yellow); }
+
+  /* CHARTS ROW */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+
+  .chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+  }
+
+  .chart-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .chart-title-icon {
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    background: rgba(0,200,224,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  .chart-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+  }
+
+  .chart-wrap { position: relative; height: 260px; }
+
+  /* TABLE */
+  .table-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+
+  .table-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .table-header-left { display: flex; flex-direction: column; gap: 3px; }
+
+  .table-header-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .table-header-sub { font-size: 12px; color: var(--text-muted); }
+
+  .table-badge {
+    background: rgba(0,200,224,0.1);
+    border: 1px solid rgba(0,200,224,0.2);
+    color: var(--accent-cyan);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .table-scroll { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead th {
+    background: rgba(0,0,0,0.25);
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(30,58,95,0.4);
+    transition: background 0.15s;
+  }
+
+  tbody tr:hover { background: rgba(0,200,224,0.04); }
+  tbody tr:last-child { border-bottom: none; }
+
+  tbody td {
+    padding: 12px 16px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  .td-id {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--accent-cyan);
+    font-weight: 600;
+  }
+
+  .td-azienda { color: var(--text-primary); font-weight: 500; }
+
+  .td-costo { color: var(--accent-yellow); font-weight: 600; }
+  .td-durata { color: var(--text-secondary); }
+
+  .priority-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    border-radius: 5px;
+    padding: 3px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .p-alta   { background: rgba(239,68,68,0.12);   color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+  .p-media  { background: rgba(245,158,11,0.12);  color: #fbbf24; border: 1px solid rgba(245,158,11,0.25);}
+  .p-bassa  { background: rgba(16,185,129,0.1);   color: #34d399; border: 1px solid rgba(16,185,129,0.2);}
+
+  .stato-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .s-completato { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+  .s-incorso    { background: rgba(0,200,224,0.1);   color: #22d3ee; border: 1px solid rgba(0,200,224,0.2);  }
+  .s-inattesa   { background: rgba(245,158,11,0.1);  color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+
+  .s-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .sd-green  { background: #34d399; }
+  .sd-cyan   { background: #22d3ee; animation: pulse 2s infinite; }
+  .sd-yellow { background: #fbbf24; animation: pulse 2s infinite; }
+
+  .tipo-badge {
+    background: rgba(139,92,246,0.1);
+    color: #a78bfa;
+    border: 1px solid rgba(139,92,246,0.2);
+    border-radius: 5px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 20px 32px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 1200px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .stato-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 900px) {
+    .charts-row { grid-template-columns: 1fr; }
+    .main { padding: 16px; }
+    .header { padding: 14px 16px; }
+  }
+
+  @media (max-width: 600px) {
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .stato-grid { grid-template-columns: 1fr; }
+    .header-right { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <div class="header-icon">⚙️</div>
+    <div>
+      <h1>Dashboard Interventi Tecnici</h1>
+      <div class="header-subtitle">Monitoraggio Impianti Industriali · Maggio–Giugno 2026</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="badge-live">
+      <div class="dot-live"></div>
+      Dati Aggiornati
+    </div>
+    <div class="header-date">📅 Gen. 03 Giu 2026</div>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- KPI -->
+  <div class="section-title">📊 Indicatori Chiave di Performance</div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card c1">
+      <div class="kpi-top">
+        <div class="kpi-label">Totale Interventi</div>
+        <div class="kpi-icon">🔧</div>
+      </div>
+      <div class="kpi-value">35</div>
+      <div class="kpi-sub">Periodo: 26 Mag – 3 Giu 2026</div>
+    </div>
+
+    <div class="kpi-card c2">
+      <div class="kpi-top">
+        <div class="kpi-label">Costo Totale</div>
+        <div class="kpi-icon">💶</div>
+      </div>
+      <div class="kpi-value">15.274</div>
+      <div class="kpi-sub">Media per intervento: € 436,40</div>
+    </div>
+
+    <div class="kpi-card c3">
+      <div class="kpi-top">
+        <div class="kpi-label">Durata Media</div>
+        <div class="kpi-icon">⏱️</div>
+      </div>
+      <div class="kpi-value">3,04</div>
+      <div class="kpi-sub">Ore per intervento · Totale: 106,5 h</div>
+    </div>
+
+    <div class="kpi-card c4">
+      <div class="kpi-top">
+        <div class="kpi-label">Tecnici Attivi</div>
+        <div class="kpi-icon">👷</div>
+      </div>
+      <div class="kpi-value">4</div>
+      <div class="kpi-sub">Bianchi · Ferretti · Ricci · Esposito</div>
+    </div>
+  </div>
+
+  <!-- STATO -->
+  <div class="section-title">📋 Riepilogo per Stato</div>
+
+  <div class="stato-grid">
+    <div class="stato-card">
+      <div class="stato-circle sc-green">20</div>
+      <div class="stato-info">
+        <div class="stato-name">✅ Completati</div>
+        <div class="stato-count">57,1% del totale interventi</div>
+        <div class="stato-bar"><div class="stato-fill sf-green" style="width:57.1%"></div></div>
+      </div>
+    </div>
+    <div class="stato-card">
+      <div class="stato-circle sc-blue">2</div>
+      <div class="stato-info">
+        <div class="stato-name">🔄 In Corso</div>
+        <div class="stato-count">5,7% del totale interventi</div>
+        <div class="stato-bar"><div class="stato-fill sf-blue" style="width:5.7%"></div></div>
+      </div>
+    </div>
+    <div class="stato-card">
+      <div class="stato-circle sc-yellow">13</div>
+      <div class="stato-info">
+        <div class="stato-name">⏳ In Attesa</div>
+        <div class="stato-count">37,1% del totale interventi</div>
+        <div class="stato-bar"><div class="stato-fill sf-yellow" style="width:37.1%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="section-title">📈 Analisi Grafiche</div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title"><div class="chart-title-icon">🏷️</div>Interventi per Tipo</div>
+      <div class="chart-subtitle">Distribuzione per tipologia di intervento</div>
+      <div class="chart-wrap"><canvas id="chartTipo"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title"><div class="chart-title-icon">👤</div>Interventi per Tecnico</div>
+      <div class="chart-subtitle">Carico di lavoro per operatore</div>
+      <div class="chart-wrap"><canvas id="chartTecnico"></canvas></div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title"><div class="chart-title-icon">💰</div>Costo per Tipo di Intervento</div>
+      <div class="chart-subtitle">Costo totale (€) aggregato per categoria</div>
+      <div class="chart-wrap"><canvas id="chartCostoTipo"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title"><div class="chart-title-icon">⏳</div>Ore per Tecnico</div>
+      <div class="chart-subtitle">Totale ore lavorate per operatore</div>
+      <div class="chart-wrap"><canvas id="chartOreTecnico"></canvas></div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="section-title">📄 Registro Completo Interventi</div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-header-left">
+        <div class="table-header-title">🗂️ Tutti gli Interventi</div>
+        <div class="table-header-sub">Dati completi ordinati per data di intervento</div>
+      </div>
+      <div class="table-badge">35 Record</div>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Azienda</th>
+            <th>Città</th>
+            <th>Macchinario</th>
+            <th>Tipo</th>
+            <th>Priorità</th>
+            <th>Data</th>
+            <th>Tecnico</th>
+            <th>Durata</th>
+            <th>Stato</th>
+            <th>Costo</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  ⚙️ Dashboard Interventi Tecnici · Dati periodo 26 Maggio – 3 Giugno 2026 · 35 Interventi · 4 Tecnici · Costo Totale € 15.274
+</footer>
+
+<script>
+const data = [
+  ["INT-001","Rossi Impianti Srl","Milano","Compressore Atlas 30kW","Manutenzione programmata","Media","2026-05-26","Mario Bianchi",3.5,"Completato",420],
+  ["INT-002","Fratelli Galli Spa","Torino","Essiccatore a refrigerazione","Guasto","Alta","2026-05-26","Luca Ferretti",2.0,"Completato",310],
+  ["INT-003","Tecnomec Bologna","Bologna","Compressore Kaeser 15kW","Manutenzione programmata","Bassa","2026-05-27","Marco Ricci",4.0,"Completato",480],
+  ["INT-004","Impianti Sud Srl","Napoli","Gruppo frigorifero Carrier","Guasto","Alta","2026-05-27","Paolo Esposito",5.5,"Completato",870],
+  ["INT-005","Nord Industrie Srl","Brescia","Compressore Atlas 55kW","Controllo periodico","Bassa","2026-05-27","Mario Bianchi",1.5,"Completato",180],
+  ["INT-006","Meccanica Verdi","Verona","Filtro aria compressa","Sostituzione componenti","Media","2026-05-28","Luca Ferretti",2.5,"Completato",290],
+  ["INT-007","Avio Componenti Spa","Torino","Compressore Ingersoll 45kW","Manutenzione programmata","Media","2026-05-28","Marco Ricci",4.5,"Completato",540],
+  ["INT-008","Plastiche Veneto Srl","Padova","Essiccatore a adsorbimento","Guasto","Alta","2026-05-28","Paolo Esposito",3.0,"Completato",650],
+  ["INT-009","Rossi Impianti Srl","Milano","Gruppo frigorifero Trane","Controllo periodico","Bassa","2026-05-29","Mario Bianchi",1.0,"Completato",120],
+  ["INT-010","Carpenteria Lombarda","Bergamo","Compressore Atlas 30kW","Sostituzione componenti","Media","2026-05-29","Luca Ferretti",3.0,"Completato",410],
+  ["INT-011","Fonderia Bresciana Spa","Brescia","Compressore Kaeser 30kW","Guasto","Alta","2026-05-29","Marco Ricci",6.0,"Completato",980],
+  ["INT-012","Impianti Centro Srl","Firenze","Essiccatore a refrigerazione","Manutenzione programmata","Bassa","2026-05-29","Paolo Esposito",2.5,"Completato",300],
+  ["INT-013","Tecnomec Bologna","Bologna","Compressore Atlas 15kW","Controllo periodico","Bassa","2026-05-30","Mario Bianchi",1.5,"Completato",180],
+  ["INT-014","Elettrica Piemonte Srl","Torino","Gruppo frigorifero Carrier","Sostituzione componenti","Media","2026-05-30","Luca Ferretti",4.0,"Completato",620],
+  ["INT-015","Gomma & Plastica Srl","Modena","Compressore Ingersoll 22kW","Manutenzione programmata","Media","2026-05-30","Marco Ricci",3.5,"Completato",420],
+  ["INT-016","Fratelli Galli Spa","Torino","Compressore Atlas 55kW","Guasto","Alta","2026-05-30","Paolo Esposito",4.5,"In corso",750],
+  ["INT-017","Metalli Pregiati Srl","Vicenza","Essiccatore a adsorbimento","Manutenzione programmata","Bassa","2026-06-02","Mario Bianchi",2.0,"Completato",240],
+  ["INT-018","Industrie Riunite Spa","Milano","Compressore Kaeser 55kW","Guasto","Alta","2026-06-02","Luca Ferretti",7.0,"Completato",1120],
+  ["INT-019","Sud Impianti Srl","Bari","Filtro aria compressa","Sostituzione componenti","Media","2026-06-02","Paolo Esposito",1.5,"Completato",175],
+  ["INT-020","Carpenteria Lombarda","Bergamo","Gruppo frigorifero Trane","Controllo periodico","Bassa","2026-06-02","Marco Ricci",1.0,"Completato",120],
+  ["INT-021","Avio Componenti Spa","Torino","Compressore Atlas 30kW","Manutenzione programmata","Media","2026-06-02","Mario Bianchi",3.5,"Completato",420],
+  ["INT-022","Meccanica Verdi","Verona","Compressore Ingersoll 45kW","Guasto","Alta","2026-06-02","Luca Ferretti",5.0,"In corso",820],
+  ["INT-023","Plastiche Veneto Srl","Padova","Compressore Kaeser 15kW","Controllo periodico","Bassa","2026-06-03","Mario Bianchi",1.5,"In attesa",180],
+  ["INT-024","Fonderia Bresciana Spa","Brescia","Essiccatore a refrigerazione","Manutenzione programmata","Media","2026-06-03","Marco Ricci",3.0,"In attesa",360],
+  ["INT-025","Rossi Impianti Srl","Milano","Compressore Atlas 55kW","Sostituzione componenti","Alta","2026-06-03","Paolo Esposito",4.0,"In attesa",680],
+  ["INT-026","Gomma & Plastica Srl","Modena","Gruppo frigorifero Carrier","Guasto","Alta","2026-06-03","Luca Ferretti",3.5,"In attesa",590],
+  ["INT-027","Impianti Sud Srl","Napoli","Compressore Atlas 30kW","Manutenzione programmata","Bassa","2026-06-03","Mario Bianchi",2.5,"In attesa",300],
+  ["INT-028","Tecnomec Bologna","Bologna","Filtro aria compressa","Controllo periodico","Bassa","2026-06-03","Marco Ricci",1.0,"In attesa",120],
+  ["INT-029","Elettrica Piemonte Srl","Torino","Compressore Kaeser 30kW","Guasto","Alta","2026-06-03","Paolo Esposito",6.0,"In attesa",960],
+  ["INT-030","Nord Industrie Srl","Brescia","Essiccatore a adsorbimento","Sostituzione componenti","Media","2026-06-03","Luca Ferretti",2.0,"In attesa",265],
+  ["INT-031","Metalli Pregiati Srl","Vicenza","Compressore Ingersoll 22kW","Manutenzione programmata","Media","2026-06-03","Mario Bianchi",3.0,"In attesa",360],
+  ["INT-032","Industrie Riunite Spa","Milano","Gruppo frigorifero Trane","Controllo periodico","Bassa","2026-06-03","Marco Ricci",1.5,"In attesa",180],
+  ["INT-033","Fratelli Galli Spa","Torino","Compressore Atlas 15kW","Guasto","Alta","2026-06-03","Paolo Esposito",4.0,"In attesa",640],
+  ["INT-034","Carpenteria Lombarda","Bergamo","Essiccatore a refrigerazione","Manutenzione programmata","Bassa","2026-06-03","Luca Ferretti",2.5,"In attesa",300],
+  ["INT-035","Sud Impianti Srl","Bari","Compressore Kaeser 55kW","Sostituzione componenti","Media","2026-06-03","Mario Bianchi",3.5,"In attesa",490]
+];
+
+/* ===== TABLE ===== */
+const tbody = document.getElementById('tableBody');
+data.forEach(r => {
+  const [id,az,cit,mac,tipo,pri,dat,tec,dur,sta,cos] = r;
+
+  const pClass = pri==='Alta' ? 'p-alta' : pri==='Media' ? 'p-media' : 'p-bassa';
+  const pIcon  = pri==='Alta' ? '🔴' : pri==='Media' ? '🟡' : '🟢';
+
+  let sClass='', sDot='', sLabel=sta;
+  if(sta==='Completato'){ sClass='s-completato'; sDot='sd-green'; }
+  else if(sta==='In corso'){ sClass='s-incorso'; sDot='sd-cyan'; }
+  else { sClass='s-inattesa'; sDot='sd-yellow'; }
+
+  const dateObj = new Date(dat);
+  const dateStr = dateObj.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+  tbody.innerHTML += `
+    <tr>
+      <td class="td-id">${id}</td>
+      <td class="td-azienda">${az}</td>
+      <td>${cit}</td>
+      <td style="color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis">${mac}</td>
+      <td><span class="tipo-badge">${tipo}</span></td>
+      <td><span class="priority-badge ${pClass}">${pIcon} ${pri}</span></td>
+      <td>${dateStr}</td>
+      <td>${tec}</td>
+      <td class="td-durata">${dur}h</td>
+      <td><span class="stato-badge ${sClass}"><span class="s-dot ${sDot}"></span>${sLabel}</span></td>
+      <td class="td-costo">€ ${cos.toLocaleString('it-IT')}</td>
+    </tr>`;
+});
+
+/* ===== AGGREGATIONS ===== */
+const tipiCount = {}, tipiCosto = {};
+const tecCount = {}, tecOre = {};
+
+data.forEach(r => {
+  const tipo = r[4], tec = r[7], ore = r[8], costo = r[10];
+  tipiCount[tipo] = (tipiCount[tipo]||0)+1;
+  tipiCosto[tipo] = (tipiCosto[tipo]||0)+costo;
+  tecCount[tec]   = (tecCount[tec]||0)+1;
+  tecOre[tec]     = (tecOre[tec]||0)+ore;
+});
+
+const tipiLabels = Object.keys(tipiCount);
+const tecLabels  = Object.keys(tecCount);
+
+/* ===== CHART DEFAULTS ===== */
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.font.family = "'Segoe UI', sans-serif";
+Chart.defaults.font.size = 12;
+
+const gridOpts = { color: 'rgba(30,58,95,0.5)', drawBorder: false };
+const tooltipOpts = {
+  backgroundColor: '#0d1526',
+  borderColor: '#1e3a5f',
+  borderWidth: 1,
+  titleColor: '#e2e8f0',
+  bodyColor: '#94a3b8',
+  padding: 10,
+  cornerRadius: 8
+};
+
+/* ===== CHART 1: Interventi per Tipo ===== */
+new Chart(document.getElementById('chartTipo'), {
+  type: 'bar',
+  data: {
+    labels: tipiLabels,
+    datasets: [{
+      label: 'N° Interventi',
+      data: tipiLabels.map(t => tipiCount[t]),
+      backgroundColor: [
+        'rgba(0,200,224,0.75)',
+        'rgba(239,68,68,0.75)',
+        'rgba(16,185,129,0.75)',
+        'rgba(245,158,11,0.75)',
+        'rgba(139,92,246,0.75)'
+      ],
+      borderColor: [
+        'rgba(0,200,224,1)',
+        'rgba(239,68,68,1)',
+        'rgba(16,185,129,1)',
+        'rgba(245,158,11,1)',
+        'rgba(139,92,246,1)'
+      ],
+      borderWidth: 1.5,
+      borderRadius: 6,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.raw} interventi` }, ...tooltipOpts } },
+    scales: {
+      x: { grid: gridOpts, ticks: { maxRotation: 20, font: {size:11} } },
+      y: { grid: gridOpts, beginAtZero: true, ticks: { stepSize: 2 } }
+    }
+  }
+});
+
+/* ===== CHART 2: Interventi per Tecnico ===== */
+new Chart(document.getElementById('chartTecnico'), {
+  type: 'bar',
+  data: {
+    labels: tecLabels,
+    datasets: [{
+      label: 'N° Interventi',
+      data: tecLabels.map(t => tecCount[t]),
+      backgroundColor: [
+        'rgba(0,200,224,0.75)',
+        'rgba(139,92,246,0.75)',
+        'rgba(16,185,129,0.75)',
+        'rgba(245,158,11,0.75)'
+      ],
+      borderColor: [
+        'rgba(0,200,224,1)',
+        'rgba(139,92,246,1)',
+        'rgba(16,185,129,1)',
+        'rgba(245,158,11,1)'
+      ],
+      borderWidth: 1.5,
+      borderRadius: 6,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.raw} interventi` }, ...tooltipOpts } },
+    scales: {
+      x: { grid: gridOpts, beginAtZero: true, ticks: { stepSize: 1 } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+/* ===== CHART 3: Costo per Tipo ===== */
+new Chart(document.getElementById('chartCostoTipo'), {
+  type: 'bar',
+  data: {
+    labels: tipiLabels,
+    datasets: [{
+      label: 'Costo €',
+      data: tipiLabels.map(t => tipiCosto[t]),
+      backgroundColor: [
+        'rgba(245,158,11,0.75)',
+        'rgba(239,68,68,0.7)',
+        'rgba(0,200,224,0.7)',
+        'rgba(139,92,246,0.7)',
+        'rgba(16,185,129,0.7)'
+      ],
+      borderColor: [
+        'rgba(245,158,11,1)',
+        'rgba(239,68,68,1)',
+        'rgba(0,200,224,1)',
+        'rgba(139,92,246,1)',
+        'rgba(16,185,129,1)'
+      ],
+      borderWidth: 1.5,
+      borderRadius: 6,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` € ${ctx.raw.toLocaleString('it-IT')}` }, ...tooltipOpts } },
+    scales: {
+      x: { grid: gridOpts, ticks: { maxRotation: 20, font: {size:11} } },
+      y: { grid: gridOpts, beginAtZero: true, ticks: { callback: v => '€'+v.toLocaleString('it-IT') } }
+    }
+  }
+});
+
+/* ===== CHART 4: Ore per Tecnico ===== */
+new Chart(document.getElementById('chartOreTecnico'), {
+  type: 'bar',
+  data: {
+    labels: tecLabels,
+    datasets: [{
+      label: 'Ore Totali',
+      data: tecLabels.map(t => tecOre[t]),
+      backgroundColor: [
+        'rgba(16,185,129,0.75)',
+        'rgba(0,200,224,0.75)',
+        'rgba(245,158,11,0.75)',
+        'rgba(139,92,246,0.75)'
+      ],
+      borderColor: [
+        'rgba(16,185,129,1)',
+        'rgba(0,200,224,1)',
+        'rgba(245,158,11,1)',
+        'rgba(139,92,246,1)'
+      ],
+      borderWidth: 1.5,
+      borderRadius: 6,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.raw}h` }, ...tooltipOpts } },
+    scales: {
+      x: { grid: gridOpts, beginAtZero: true, ticks: { callback: v => v+'h' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>

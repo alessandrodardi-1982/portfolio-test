@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agente AI — Supporto Tecnico Industriale</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0e1a; --bg2:#0f1525; --bg3:#141b2e;
+    --card:#161d30; --card2:#1c2540;
+    --border:rgba(44,161,254,0.15); --border2:rgba(44,161,254,0.08);
+    --accent:#2ca1fe; --accent2:#1a7fd4;
+    --text:#e8edf5; --text2:#8fa3c0; --text3:#5a7090;
+    --green:#22c55e; --amber:#f59e0b; --red:#ef4444;
+    --font-display:'Fraunces',serif; --font-body:'Hanken Grotesk',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(44,161,254,.07) 0%,transparent 60%),
+                     radial-gradient(ellipse at 80% 100%,rgba(44,161,254,.04) 0%,transparent 50%)}
+
+  .header{border-bottom:1px solid var(--border2);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;background:rgba(10,14,26,.8);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100}
+  .header-left{display:flex;align-items:center;gap:1rem}
+  .logo-badge{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+  .header-title{font-family:var(--font-display);font-size:1.1rem;font-weight:600}
+  .header-sub{font-size:.7rem;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.05em}
+  .back-link{color:var(--text3);text-decoration:none;font-size:.8rem;font-family:var(--font-mono);display:flex;align-items:center;gap:.4rem;transition:color .2s}
+  .back-link:hover{color:var(--accent)}
+
+  .status-bar{background:var(--bg2);border-bottom:1px solid var(--border2);padding:.6rem 2rem;display:flex;align-items:center;gap:1.5rem;font-size:.72rem;font-family:var(--font-mono);color:var(--text3)}
+  .status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  .main{max-width:980px;margin:0 auto;padding:2.5rem 2rem 4rem}
+  .page-intro{margin-bottom:2rem}
+  .page-intro h1{font-family:var(--font-display);font-size:2rem;font-weight:600;line-height:1.2;margin-bottom:.5rem}
+  .page-intro p{color:var(--text2);font-size:.9rem;line-height:1.6;max-width:640px}
+  .tag{display:inline-flex;align-items:center;gap:.3rem;background:rgba(44,161,254,.1);border:1px solid rgba(44,161,254,.2);color:var(--accent);font-size:.7rem;font-family:var(--font-mono);padding:.25rem .6rem;border-radius:4px;margin-bottom:1rem;letter-spacing:.05em;text-transform:uppercase}
+
+  .flow-steps{display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.5rem;margin-bottom:2rem;overflow-x:auto;gap:0}
+  .flow-step{display:flex;align-items:center;gap:.5rem;white-space:nowrap;flex-shrink:0}
+  .flow-step-num{width:22px;height:22px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-family:var(--font-mono);color:var(--text3);flex-shrink:0}
+  .flow-step.active .flow-step-num{background:var(--accent);border-color:var(--accent);color:#fff}
+  .flow-step.done .flow-step-num{background:rgba(34,197,94,.2);border-color:var(--green);color:var(--green)}
+  .flow-step-label{font-size:.75rem;color:var(--text3);font-family:var(--font-mono)}
+  .flow-step.active .flow-step-label{color:var(--accent)}
+  .flow-step.done .flow-step-label{color:var(--green)}
+  .flow-arrow{color:var(--text3);margin:0 .75rem;font-size:.75rem;flex-shrink:0}
+
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+  @media(max-width:680px){.cols{grid-template-columns:1fr}.header{padding:1rem}.main{padding:1.5rem 1rem 3rem}}
+
+  .card{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:1.5rem;transition:border-color .2s}
+  .card:hover{border-color:var(--border)}
+  .card-label{font-size:.65rem;font-family:var(--font-mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem}
+  .card h3{font-family:var(--font-display);font-size:1rem;font-weight:600;margin-bottom:1rem}
+
+  .form-group{margin-bottom:1rem}
+  label{display:block;font-size:.78rem;color:var(--text2);margin-bottom:.4rem;font-weight:500}
+  input,textarea,select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--font-body);font-size:.85rem;padding:.65rem .9rem;outline:none;transition:border-color .2s,box-shadow .2s;resize:vertical}
+  input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(44,161,254,.1)}
+  textarea{min-height:110px}
+  select option{background:var(--bg3)}
+
+  .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.4rem;border-radius:8px;font-family:var(--font-body);font-size:.85rem;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+  .btn-primary{background:var(--accent);color:#fff;width:100%;justify-content:center;margin-top:.5rem}
+  .btn-primary:hover:not(:disabled){background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(44,161,254,.25)}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed}
+  .btn-approve{background:var(--green);color:#fff;flex:1;justify-content:center}
+  .btn-approve:hover{background:#16a34a;transform:translateY(-1px)}
+  .btn-redirect{background:var(--amber);color:#fff;flex:1;justify-content:center}
+  .btn-redirect:hover{background:#b45309;transform:translateY(-1px)}
+  .btn-edit{background:var(--card2);color:var(--text2);border:1px solid var(--border);flex:1;justify-content:center}
+  .btn-edit:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-reset{background:transparent;color:var(--text3);border:1px solid var(--border);padding:.5rem 1rem;font-size:.78rem;font-family:var(--font-mono);border-radius:6px;cursor:pointer;margin-top:1rem;transition:all .2s}
+  .btn-reset:hover{color:var(--accent);border-color:var(--accent)}
+
+  .team-list{display:flex;flex-direction:column;gap:.6rem}
+  .team-member{display:flex;align-items:center;gap:.75rem;padding:.65rem .75rem;background:var(--bg3);border-radius:8px;border:1px solid var(--border2);transition:all .2s}
+  .team-member.highlighted{border-color:var(--accent);background:rgba(44,161,254,.08);box-shadow:0 0 0 1px rgba(44,161,254,.2)}
+  .team-member.coordinator-active{border-color:var(--amber);background:rgba(245,158,11,.08);box-shadow:0 0 0 1px rgba(245,158,11,.2)}
+  .avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;flex-shrink:0;font-family:var(--font-mono)}
+  .member-info{flex:1;min-width:0}
+  .member-name{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .member-spec{font-size:.68rem;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .member-badge{font-size:.6rem;font-family:var(--font-mono);padding:.2rem .4rem;border-radius:4px;background:rgba(44,161,254,.15);color:var(--accent);white-space:nowrap}
+  .member-badge.coord-badge{background:rgba(245,158,11,.15);color:var(--amber)}
+  .member-badge.suggerito{background:rgba(44,161,254,.15);color:var(--accent)}
+
+  .loading-state{display:none;text-align:center;padding:2rem}
+  .loading-state.visible{display:block}
+  .spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-label{font-size:.8rem;font-family:var(--font-mono);color:var(--text3)}
+  .loading-steps{display:flex;flex-direction:column;gap:.35rem;margin-top:1rem;align-items:center}
+  .loading-step{font-size:.72rem;font-family:var(--font-mono);color:var(--text3);opacity:0;transition:opacity .4s}
+  .loading-step.visible{opacity:1;color:var(--accent)}
+  .loading-step.done{opacity:.5;color:var(--green)}
+
+  .result-section{display:none;margin-top:1.5rem}
+  .result-section.visible{display:block}
+  .result-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.25rem}
+  .result-header{background:linear-gradient(135deg,rgba(44,161,254,.12),rgba(44,161,254,.05));border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+  .result-title{font-family:var(--font-display);font-size:1rem;font-weight:600}
+  .result-meta{display:flex;gap:.75rem;flex-wrap:wrap}
+  .badge{font-size:.68rem;font-family:var(--font-mono);padding:.25rem .6rem;border-radius:6px;font-weight:500;letter-spacing:.03em}
+  .badge-urgency-alta{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+  .badge-urgency-media{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+  .badge-urgency-bassa{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+  .badge-tipo{background:rgba(44,161,254,.1);color:var(--accent);border:1px solid rgba(44,161,254,.2)}
+  .result-body{padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem}
+  .analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  @media(max-width:600px){.analysis-grid{grid-template-columns:1fr}}
+  .analysis-item{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.9rem 1rem}
+  .analysis-item-label{font-size:.65rem;font-family:var(--font-mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+  .analysis-item-value{font-size:.85rem;color:var(--text);font-weight:500;line-height:1.4}
+
+  .override-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem}
+  .override-box-label{font-size:.65rem;font-family:var(--font-mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem}
+  .override-note{font-size:.72rem;color:var(--text3);margin-top:.5rem;font-family:var(--font-mono)}
+  .override-note span{color:var(--amber)}
+
+  .ai-note{background:rgba(44,161,254,.05);border:1px solid rgba(44,161,254,.15);border-radius:8px;padding:.75rem 1rem;font-size:.78rem;color:var(--text2);line-height:1.5;display:flex;gap:.6rem;align-items:flex-start}
+
+  .mail-tabs{display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+  .mail-tab{padding:.45rem .9rem;border-radius:6px;font-size:.75rem;font-family:var(--font-mono);cursor:pointer;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);transition:all .2s;white-space:nowrap}
+  .mail-tab.active{background:rgba(44,161,254,.12);border-color:var(--accent);color:var(--accent)}
+  .mail-tab.tab-coord.active{background:rgba(245,158,11,.12);border-color:var(--amber);color:var(--amber)}
+  .mail-tab.tab-tech.active{background:rgba(34,197,94,.12);border-color:var(--green);color:var(--green)}
+  .mail-panel{display:none}
+  .mail-panel.visible{display:block}
+
+  .mail-draft{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .mail-header-bar{background:var(--bg3);border-bottom:1px solid var(--border2);padding:.75rem 1rem;display:flex;align-items:center;gap:.5rem}
+  .mail-dot{width:10px;height:10px;border-radius:50%}
+  .mail-fields{padding:1rem 1.25rem;border-bottom:1px solid var(--border2);display:flex;flex-direction:column;gap:.5rem}
+  .mail-field{display:flex;gap:.75rem;align-items:baseline}
+  .mail-field-label{font-size:.7rem;font-family:var(--font-mono);color:var(--text3);min-width:60px;text-transform:uppercase;letter-spacing:.05em}
+  .mail-field-value{font-size:.82rem;color:var(--text)}
+  .mail-field-value.accent{color:var(--accent)}
+  .mail-field-value.amber{color:var(--amber)}
+  .mail-field-value.green{color:var(--green)}
+  .mail-body-area{padding:1.25rem}
+  .mail-body-text{font-size:.82rem;color:var(--text2);line-height:1.7;white-space:pre-wrap;font-family:var(--font-body)}
+  .instant-sent{display:flex;align-items:center;gap:.5rem;font-size:.72rem;font-family:var(--font-mono);color:var(--green);margin-top:.5rem}
+
+  .tech-response-area{padding:1.25rem;border-top:1px solid var(--border2);display:flex;flex-direction:column;gap:.75rem}
+  .tech-response-label{font-size:.65rem;font-family:var(--font-mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+  .tech-btns{display:flex;gap:.75rem;flex-wrap:wrap}
+  .btn-accept{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3);flex:1;justify-content:center;min-width:160px}
+  .btn-accept:hover{background:rgba(34,197,94,.25);transform:translateY(-1px)}
+  .btn-decline{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25);flex:1;justify-content:center;min-width:160px}
+  .btn-decline:hover{background:rgba(239,68,68,.2);transform:translateY(-1px)}
+  .tech-log{display:none;border-radius:8px;padding:.9rem 1rem;font-size:.78rem;font-family:var(--font-mono);line-height:1.7}
+  .tech-log.accepted{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:var(--green)}
+  .tech-log.declined{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--red)}
+  .tech-log.visible{display:block}
+  .tech-log-neutral{color:var(--text2)}
+  .tech-log-amber{color:var(--amber)}
+
+  .review-section{display:none}
+  .review-section.visible{display:block}
+  .review-banner{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:1rem 1.25rem;display:flex;align-items:flex-start;gap:.75rem;margin-bottom:1rem}
+  .review-icon{font-size:1.2rem;flex-shrink:0}
+  .review-text{font-size:.82rem;color:var(--amber);line-height:1.5}
+  .review-text strong{font-weight:600}
+  .review-text ul{margin-top:.4rem;padding-left:1.1rem}
+  .review-text li{margin-bottom:.2rem}
+  .review-actions{display:flex;gap:.75rem}
+
+  .sent-section{display:none;text-align:center;padding:2.5rem 1.5rem}
+  .sent-section.visible{display:block}
+  .sent-icon{font-size:3rem;margin-bottom:1rem}
+  .sent-title{font-family:var(--font-display);font-size:1.4rem;color:var(--green);margin-bottom:.5rem}
+  .sent-sub{font-size:.85rem;color:var(--text3);margin-bottom:1.5rem}
+  .sent-log{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:1rem 1.25rem;text-align:left;font-size:.75rem;font-family:var(--font-mono);color:var(--text3);line-height:1.8;max-width:460px;margin:0 auto}
+  .log-ok{color:var(--green)}
+  .log-time{color:var(--accent)}
+  .log-warn{color:var(--amber)}
+
+  .ticket-id{font-family:var(--font-mono);font-size:.72rem;color:var(--text3);background:var(--bg3);border:1px solid var(--border2);padding:.2rem .5rem;border-radius:4px}
+  .divider{border-top:1px solid var(--border2);margin:.3rem 0;opacity:.4}
+  .footer-note{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border2);display:flex;align-items:center;gap:.75rem;font-size:.72rem;font-family:var(--font-mono);color:var(--text3)}
+  .footer-note .acc{color:var(--accent)}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <div class="logo-badge">🤖</div>
+    <div>
+      <div class="header-title">Agente AI — Supporto Tecnico</div>
+      <div class="header-sub">TecnoService Industriale Srl · Bologna</div>
+    </div>
+  </div>
+  <a href="index.html" class="back-link">← Portfolio</a>
+</header>
+
+<div class="status-bar">
+  <div style="display:flex;align-items:center;gap:.4rem">
+    <div class="status-dot"></div><span>Agente attivo</span>
+  </div>
+  <span>·</span><span>Modello: claude-sonnet-4-20250514</span>
+  <span>·</span><span id="ticket-counter">Ticket processati: 0</span>
+</div>
+
+<main class="main">
+
+  <div class="page-intro">
+    <div class="tag">⚡ AI applicata · Agente AI</div>
+    <h1>Triage intelligente<br>delle richieste di supporto</h1>
+    <p>L'agente riceve la segnalazione, conferma subito al cliente, analizza e smista alla coordinatrice con una bozza completa. Il responsabile può sovrascrivere il tecnico suggerito dall'AI. La coordinatrice valuta zona, carico e storico cliente prima di assegnare definitivamente.</p>
+  </div>
+
+  <div class="flow-steps">
+    <div class="flow-step active" id="step-1"><div class="flow-step-num">1</div><div class="flow-step-label">Richiesta</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" id="step-2"><div class="flow-step-num">2</div><div class="flow-step-label">Conferma cliente</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" id="step-3"><div class="flow-step-num">3</div><div class="flow-step-label">Analisi AI</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" id="step-4"><div class="flow-step-num">4</div><div class="flow-step-label">Revisione</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" id="step-5"><div class="flow-step-num">5</div><div class="flow-step-label">Invio coordinatrice</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" id="step-6"><div class="flow-step-num">6</div><div class="flow-step-label">Risposta tecnico</div></div>
+  </div>
+
+  <div class="cols" id="inputArea">
+    <div class="card">
+      <div class="card-label">01 — Nuova richiesta</div>
+      <h3>Inserisci la segnalazione</h3>
+      <div class="form-group"><label>Azienda / Cliente</label><input type="text" id="azienda" placeholder="es. Carpenteria Rossi Srl"/></div>
+      <div class="form-group"><label>Referente</label><input type="text" id="referente" placeholder="es. Mario Bianchi — Resp. produzione"/></div>
+      <div class="form-group"><label>Email cliente <span style="color:var(--text3);font-size:.72rem">(per la conferma automatica)</span></label><input type="email" id="emailCliente" placeholder="es. m.bianchi@rossi.it"/></div>
+      <div class="form-group"><label>Macchinario / Impianto</label><input type="text" id="macchinario" placeholder="es. Compressore Atlas Copco GA55"/></div>
+      <div class="form-group"><label>Descrizione del problema</label><textarea id="problema" placeholder="Descrivi il guasto. Più dettagli fornisci, più accurata sarà l'analisi..."></textarea></div>
+      <button class="btn btn-primary" id="analyzeBtn" onclick="analyzeRequest()">🔍 Analizza con AI</button>
+    </div>
+
+    <div class="card">
+      <div class="card-label">02 — Team tecnico</div>
+      <h3>Specialisti disponibili</h3>
+      <div class="team-list">
+        <div class="team-member coordinator-active" id="tech-trentini">
+          <div class="avatar" style="background:rgba(245,158,11,.15);color:#f59e0b">GT</div>
+          <div class="member-info"><div class="member-name">Giulia Trentini</div><div class="member-spec">Coordinatrice · Assegnazione interventi</div></div>
+          <div class="member-badge coord-badge">Coordinatrice</div>
+        </div>
+        <hr class="divider"/>
+        <div class="team-member" id="tech-ferretti">
+          <div class="avatar" style="background:rgba(44,161,254,.15);color:#2ca1fe">MF</div>
+          <div class="member-info"><div class="member-name">Marco Ferretti</div><div class="member-spec">Compressori · Sistemi pneumatici</div></div>
+          <div class="member-badge" id="badge-ferretti">Senior</div>
+        </div>
+        <div class="team-member" id="tech-bernardini">
+          <div class="avatar" style="background:rgba(34,197,94,.15);color:#22c55e">LB</div>
+          <div class="member-info"><div class="member-name">Luca Bernardini</div><div class="member-spec">Refrigerazione · Gruppi frigo</div></div>
+          <div class="member-badge" id="badge-bernardini">Senior</div>
+        </div>
+        <div class="team-member" id="tech-monti">
+          <div class="avatar" style="background:rgba(245,158,11,.15);color:#f59e0b">SM</div>
+          <div class="member-info"><div class="member-name">Sara Monti</div><div class="member-spec">Quadri elettrici · Automazione · PLC</div></div>
+          <div class="member-badge" id="badge-monti">Senior</div>
+        </div>
+        <div class="team-member" id="tech-ansaloni">
+          <div class="avatar" style="background:rgba(168,85,247,.15);color:#a855f7">RA</div>
+          <div class="member-info"><div class="member-name">Roberto Ansaloni</div><div class="member-spec">Meccanica · Trasmissioni · Pompe</div></div>
+          <div class="member-badge" id="badge-ansaloni">Tecnico</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-state" id="loadingState">
+    <div class="spinner"></div>
+    <div class="loading-label">Agente in elaborazione...</div>
+    <div class="loading-steps">
+      <div class="loading-step" id="ls1">→ Lettura richiesta</div>
+      <div class="loading-step" id="ls2">→ Preparazione conferma al cliente</div>
+      <div class="loading-step" id="ls3">→ Classificazione urgenza e tipologia guasto</div>
+      <div class="loading-step" id="ls4">→ Identificazione tecnico suggerito</div>
+      <div class="loading-step" id="ls5">→ Generazione bozze mail</div>
+    </div>
+  </div>
+
+  <div class="result-section" id="resultSection">
+    <div class="result-card">
+      <div class="result-header">
+        <div>
+          <div class="result-title" id="resultTitle">Analisi completata</div>
+          <div style="margin-top:.3rem" id="ticketIdDisplay"></div>
+        </div>
+        <div class="result-meta" id="resultMeta"></div>
+      </div>
+      <div class="result-body">
+
+        <div class="analysis-grid" id="analysisGrid"></div>
+
+        <div class="override-box">
+          <div class="override-box-label">👤 Tecnico da proporre alla coordinatrice — il responsabile può modificare il suggerimento AI</div>
+          <select id="techSelect" onchange="onTechChange()">
+            <option value="ferretti">Marco Ferretti — Compressori / Pneumatico</option>
+            <option value="bernardini">Luca Bernardini — Refrigerazione / Gruppi frigo</option>
+            <option value="monti">Sara Monti — Elettrico / Automazione / PLC</option>
+            <option value="ansaloni">Roberto Ansaloni — Meccanica / Pompe</option>
+          </select>
+          <div class="override-note" id="overrideNote"></div>
+        </div>
+
+        <div class="ai-note">
+          <span>🤖</span>
+          <span>L'AI suggerisce il tecnico in base alla tipologia del guasto. La coordinatrice valuterà anche zona geografica, carico di lavoro attuale e storico del cliente prima dell'assegnazione definitiva.</span>
+        </div>
+
+        <div>
+          <div class="card-label" style="margin-bottom:.75rem">Mail generate dall'agente</div>
+          <div class="mail-tabs">
+            <div class="mail-tab active" id="tab-cliente" onclick="switchTab('cliente')">✉️ Mail → Cliente</div>
+            <div class="mail-tab tab-coord" id="tab-coord" onclick="switchTab('coord')">📋 Bozza → Coordinatrice</div>
+            <div class="mail-tab tab-tech" id="tab-tech" onclick="switchTab('tech')">📨 Mail → Tecnico</div>
+          </div>
+
+          <div class="mail-panel visible" id="panel-cliente">
+            <div class="mail-draft">
+              <div class="mail-header-bar">
+                <div class="mail-dot" style="background:#ef4444"></div><div class="mail-dot" style="background:#f59e0b"></div><div class="mail-dot" style="background:#22c55e"></div>
+                <span style="font-size:.7rem;font-family:var(--font-mono);color:var(--text3);margin-left:.5rem">conferma_ricezione.eml — inviata automaticamente</span>
+              </div>
+              <div class="mail-fields">
+                <div class="mail-field"><span class="mail-field-label">A:</span><span class="mail-field-value accent" id="mailToCliente"></span></div>
+                <div class="mail-field"><span class="mail-field-label">Oggetto:</span><span class="mail-field-value" id="mailSubjCliente"></span></div>
+              </div>
+              <div class="mail-body-area"><div class="mail-body-text" id="mailBodyCliente"></div></div>
+            </div>
+            <div class="instant-sent">✓ Inviata automaticamente al momento della ricezione — nessuna approvazione richiesta</div>
+          </div>
+
+          <div class="mail-panel" id="panel-coord">
+            <div class="mail-draft">
+              <div class="mail-header-bar">
+                <div class="mail-dot" style="background:#ef4444"></div><div class="mail-dot" style="background:#f59e0b"></div><div class="mail-dot" style="background:#22c55e"></div>
+                <span style="font-size:.7rem;font-family:var(--font-mono);color:var(--text3);margin-left:.5rem">bozza_coordinatrice.eml — in attesa di approvazione</span>
+              </div>
+              <div class="mail-fields">
+                <div class="mail-field"><span class="mail-field-label">A:</span><span class="mail-field-value amber">Giulia Trentini &lt;giulia.trentini@tecnoservice.it&gt;</span></div>
+                <div class="mail-field"><span class="mail-field-label">Oggetto:</span><span class="mail-field-value" id="mailSubjCoord"></span></div>
+              </div>
+              <div class="mail-body-area"><div class="mail-body-text" id="mailBodyCoord" contenteditable="false"></div></div>
+            </div>
+          </div>
+
+          <div class="mail-panel" id="panel-tech">
+            <div class="mail-draft">
+              <div class="mail-header-bar">
+                <div class="mail-dot" style="background:#ef4444"></div><div class="mail-dot" style="background:#f59e0b"></div><div class="mail-dot" style="background:#22c55e"></div>
+                <span style="font-size:.7rem;font-family:var(--font-mono);color:var(--text3);margin-left:.5rem">assegnazione_tecnico.eml — inviata dopo approvazione coordinatrice</span>
+              </div>
+              <div class="mail-fields">
+                <div class="mail-field"><span class="mail-field-label">A:</span><span class="mail-field-value green" id="mailToTech"></span></div>
+                <div class="mail-field"><span class="mail-field-label">Oggetto:</span><span class="mail-field-value" id="mailSubjTech"></span></div>
+              </div>
+              <div class="mail-body-area"><div class="mail-body-text" id="mailBodyTech"></div></div>
+              <div class="tech-response-area">
+                <div class="tech-response-label">Risposta del tecnico</div>
+                <div class="tech-btns" id="techBtns">
+                  <button class="btn btn-accept" onclick="techRespond('accept')">✅ Prendo in carico</button>
+                  <button class="btn btn-decline" onclick="techRespond('decline')">⚠️ Non disponibile — sono già impegnato</button>
+                </div>
+                <div class="tech-log" id="techLog"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="review-section visible" id="reviewSection">
+          <div class="review-banner">
+            <div class="review-icon">👤</div>
+            <div class="review-text">
+              <strong>Revisione responsabile richiesta.</strong> La conferma al cliente è già inviata. Verifica l'analisi e il tecnico selezionato. La coordinatrice valuterà anche:
+              <ul>
+                <li>Zona geografica e posizione dei tecnici</li>
+                <li>Carico di lavoro e disponibilità reale</li>
+                <li>Priorità strategica del cliente</li>
+              </ul>
+            </div>
+          </div>
+          <div class="review-actions">
+            <button class="btn btn-edit" id="editBtn" onclick="editDraft()">✏️ Modifica bozza</button>
+            <button class="btn btn-approve" onclick="approveSend()">✅ Invia al tecnico scelto</button>
+            <button class="btn btn-redirect" onclick="redirectTech()">🔄 Indirizza ad altro tecnico</button>
+          </div>
+        </div>
+
+        <div class="sent-section" id="sentSection">
+          <div class="sent-icon">✅</div>
+          <div class="sent-title">Bozza inviata alla coordinatrice</div>
+          <div class="sent-sub">Giulia Trentini valuterà l'assegnazione definitiva. La mail al tecnico è visibile nella terza tab.</div>
+          <div class="sent-log" id="sentLog"></div>
+          <button class="btn-reset" onclick="resetAll()">← Nuova richiesta</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    <span class="acc">⚡</span>
+    <span>Agente costruito con <span class="acc">Claude API</span> · L'AI analizza e suggerisce, l'umano valuta e decide · Alessandro Dardi — 2026</span>
+  </div>
+
+</main>
+
+<script>
+const TEAM={
+  ferretti:  {id:'tech-ferretti',  nome:'Marco Ferretti',  email:'marco.ferretti@tecnoservice.it',  badge:'Senior'},
+  bernardini:{id:'tech-bernardini',nome:'Luca Bernardini', email:'luca.bernardini@tecnoservice.it', badge:'Senior'},
+  monti:     {id:'tech-monti',     nome:'Sara Monti',      email:'sara.monti@tecnoservice.it',      badge:'Senior'},
+  ansaloni:  {id:'tech-ansaloni',  nome:'Roberto Ansaloni',email:'roberto.ansaloni@tecnoservice.it',badge:'Tecnico'}
+};
+
+// ── MODIFICA QUI se cambi dominio Netlify ──
+const PROXY_URL = '/api/claude';
+
+let ticketCount=0,currentTicketId='',analysisData=null,aiKey='',selKey='',isEditing=false,techDone=false;
+
+document.getElementById('ticket-counter').textContent=`Ticket processati: ${ticketCount}`;
+
+function genTicket(){const n=new Date();return`TKT-${String(n.getFullYear()).slice(2)}${String(n.getMonth()+1).padStart(2,'0')}${String(n.getDate()).padStart(2,'0')}-${String(ticketCount+1).padStart(3,'0')}`}
+
+function setStep(n){for(let i=1;i<=6;i++){const el=document.getElementById(`step-${i}`);el.classList.remove('active','done');if(i<n)el.classList.add('done');if(i===n)el.classList.add('active')}}
+
+function highlightTech(key,label){Object.keys(TEAM).forEach(k=>{document.getElementById(TEAM[k].id).classList.remove('highlighted');const b=document.getElementById(`badge-${k}`);b.classList.remove('suggerito');b.textContent=TEAM[k].badge});if(!key||!TEAM[key])return;document.getElementById(TEAM[key].id).classList.add('highlighted');const b=document.getElementById(`badge-${key}`);b.classList.add('suggerito');b.textContent=label||'Suggerito AI'}
+
+function switchTab(t){['cliente','coord','tech'].forEach(x=>{document.getElementById(`tab-${x}`).classList.toggle('active',x===t);document.getElementById(`panel-${x}`).classList.toggle('visible',x===t)});const rs=document.getElementById('reviewSection');const ss=document.getElementById('sentSection');if(rs&&ss){const approved=ss.classList.contains('visible');if(t==='coord'&&!approved){rs.classList.add('visible')}else{rs.classList.remove('visible')}}}
+
+function onTechChange(){selKey=document.getElementById('techSelect').value;const note=document.getElementById('overrideNote');if(selKey!==aiKey){note.innerHTML=`<span>⚠</span> Tecnico modificato rispetto al suggerimento AI (${TEAM[aiKey]?.nome||''}).`;highlightTech(selKey,'Selezionato')}else{note.innerHTML=`<span style="color:var(--green)">✓</span> Tecnico suggerito dall'AI confermato.`;highlightTech(selKey,'Suggerito AI')}updateMailTech()}
+
+function updateMailTech(){const t=TEAM[selKey];if(!t||!analysisData)return;document.getElementById('mailToTech').textContent=`${t.nome} <${t.email}>`;document.getElementById('mailSubjTech').textContent=`Assegnazione intervento ${currentTicketId} — ${analysisData._input.macchinario}`;document.getElementById('mailBodyTech').textContent=analysisData.mail_tecnico||''}
+
+async function analyzeRequest(){
+  const azienda=document.getElementById('azienda').value.trim();
+  const referente=document.getElementById('referente').value.trim();
+  const emailCliente=document.getElementById('emailCliente').value.trim()||'cliente@azienda.it';
+  const macchinario=document.getElementById('macchinario').value.trim();
+  const problema=document.getElementById('problema').value.trim();
+  if(!azienda||!problema||!macchinario){alert('Compila almeno: Azienda, Macchinario e Problema.');return}
+
+  currentTicketId=genTicket();setStep(2);techDone=false;
+  document.getElementById('analyzeBtn').disabled=true;
+  document.getElementById('loadingState').classList.add('visible');
+  document.getElementById('resultSection').classList.remove('visible');
+
+  const lsIds=['ls1','ls2','ls3','ls4','ls5'];
+  lsIds.forEach((id,i)=>setTimeout(()=>document.getElementById(id).classList.add('visible'),i*600));
+
+  const prompt=`Sei un agente AI di triage per TecnoService Industriale Srl, Bologna. Analizza questa richiesta di supporto tecnico e rispondi SOLO con JSON valido, nessun testo prima o dopo.
+
+RICHIESTA:
+- Ticket: ${currentTicketId}
+- Azienda: ${azienda}
+- Referente: ${referente||'Non specificato'}
+- Email cliente: ${emailCliente}
+- Macchinario: ${macchinario}
+- Problema: ${problema}
+
+TEAM:
+- ferretti: Marco Ferretti — Compressori, aria compressa, pneumatico
+- bernardini: Luca Bernardini — Refrigerazione, gruppi frigo
+- monti: Sara Monti — Quadri elettrici, automazione, PLC
+- ansaloni: Roberto Ansaloni — Meccanica, trasmissioni, pompe
+
+La coordinatrice Giulia Trentini riceve sempre la bozza interna.
+
+JSON richiesto (tutti i campi obbligatori):
+{"urgenza":"alta|media|bassa","tipo_problema":"stringa breve","causa_probabile":"2-3 righe ipotesi tecnica","prima_azione":"1 riga concisa","tecnico_suggerito_key":"ferretti|bernardini|monti|ansaloni","motivazione_suggerimento":"1 riga","mail_cliente":"testo completo conferma ricezione al cliente, professionale e rassicurante, con numero ticket, macchinario, firma TecnoService Industriale Srl","mail_coordinatrice":"testo completo bozza a Giulia Trentini con ticket, azienda, referente, macchinario, problema, urgenza, tecnico suggerito con motivazione, nota che valutazione finale spetta a lei, firma Agente AI — TecnoService","mail_tecnico":"testo completo mail al tecnico con ticket, azienda, referente, macchinario, problema, urgenza, istruzioni presa in carico o non disponibilità, firma Giulia Trentini — Coordinatrice TecnoService"}`;
+
+  try{
+    const res=await fetch(PROXY_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-5',
+        max_tokens:1500,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await res.json();
+    const raw=data.content.map(b=>b.text||'').join('');
+    const clean=raw.replace(/```json|```/g,'').trim();
+    analysisData=JSON.parse(clean);
+    analysisData._input={azienda,referente,emailCliente,macchinario};
+    lsIds.forEach(id=>{document.getElementById(id).classList.remove('visible');document.getElementById(id).classList.add('done')});
+    setTimeout(()=>renderResult(analysisData),400);
+  }catch(err){
+    document.getElementById('loadingState').classList.remove('visible');
+    document.getElementById('analyzeBtn').disabled=false;
+    alert('Errore durante l\'analisi:\n'+err.message);
+    setStep(1);
+  }
+}
+
+function renderResult(d){
+  document.getElementById('loadingState').classList.remove('visible');
+  ticketCount++;
+  document.getElementById('ticket-counter').textContent=`Ticket processati: ${ticketCount}`;
+  aiKey=d.tecnico_suggerito_key;selKey=aiKey;
+  setStep(3);
+  document.getElementById('resultTitle').textContent=`Analisi — ${d._input.azienda}`;
+  document.getElementById('ticketIdDisplay').innerHTML=`<span class="ticket-id">${currentTicketId}</span>`;
+  document.getElementById('resultMeta').innerHTML=`<span class="badge badge-urgency-${d.urgenza}">URGENZA: ${d.urgenza.toUpperCase()}</span><span class="badge badge-tipo">⚙️ ${d.tipo_problema}</span>`;
+  document.getElementById('analysisGrid').innerHTML=`
+    <div class="analysis-item"><div class="analysis-item-label">Causa probabile</div><div class="analysis-item-value">${d.causa_probabile}</div></div>
+    <div class="analysis-item"><div class="analysis-item-label">Prima azione raccomandata</div><div class="analysis-item-value">${d.prima_azione}</div></div>
+    <div class="analysis-item"><div class="analysis-item-label">Tecnico suggerito dall'AI</div><div class="analysis-item-value">${TEAM[aiKey]?.nome||'—'}</div></div>
+    <div class="analysis-item"><div class="analysis-item-label">Motivazione suggerimento</div><div class="analysis-item-value">${d.motivazione_suggerimento}</div></div>`;
+  document.getElementById('techSelect').value=aiKey;
+  document.getElementById('overrideNote').innerHTML=`<span style="color:var(--green)">✓</span> Tecnico suggerito dall'AI preselezionato. Puoi modificarlo se necessario.`;
+  highlightTech(aiKey,'Suggerito AI');
+  document.getElementById('mailToCliente').textContent=`${d._input.referente||d._input.azienda} <${d._input.emailCliente}>`;
+  document.getElementById('mailSubjCliente').textContent=`Conferma ricezione segnalazione — ${currentTicketId}`;
+  document.getElementById('mailBodyCliente').textContent=d.mail_cliente;
+  document.getElementById('mailSubjCoord').textContent=`Bozza Richiesta Intervento ${currentTicketId} — ${d._input.macchinario}`;
+  document.getElementById('mailBodyCoord').textContent=d.mail_coordinatrice;
+  updateMailTech();
+  document.getElementById('resultSection').classList.add('visible');
+  document.getElementById('sentSection').classList.remove('visible');
+  document.getElementById('techLog').className='tech-log';
+  document.getElementById('techBtns').style.display='flex';
+  switchTab('cliente');setStep(4);
+  document.getElementById('resultSection').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function editDraft(){
+  const body=document.getElementById('mailBodyCoord');
+  isEditing=!isEditing;
+  body.contentEditable=isEditing?'true':'false';
+  body.style.outline=isEditing?'2px solid var(--amber)':'';
+  body.style.borderRadius=isEditing?'4px':'';
+  body.style.padding=isEditing?'4px':'';
+  document.getElementById('editBtn').textContent=isEditing?'💾 Salva modifiche':'✏️ Modifica bozza';
+  if(isEditing){switchTab('coord');body.focus()}
+}
+
+function redirectTech(){
+  const sel=document.getElementById('techSelect');
+  sel.scrollIntoView({behavior:'smooth',block:'center'});
+  sel.focus();
+  sel.style.outline='2px solid var(--amber)';
+  setTimeout(()=>{sel.style.outline=''},2000);
+}
+
+function approveSend(){
+  if(isEditing)editDraft();
+  setStep(5);
+  document.getElementById('reviewSection').classList.remove('visible');
+  const now=new Date();
+  const ts=`${now.toLocaleDateString('it-IT')} ${now.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}`;
+  const t=TEAM[selKey];const over=selKey!==aiKey;
+  document.getElementById('sentLog').innerHTML=`<span class="log-ok">✓</span> Ticket <span class="log-time">${currentTicketId}</span> registrato<br><span class="log-ok">✓</span> Conferma automatica inviata al cliente<br><span class="log-ok">✓</span> Analisi AI completata<br>${over?`<span class="log-warn">⚠</span> Tecnico modificato: <span class="log-time">${t.nome}</span><br>`:`<span class="log-ok">✓</span> Tecnico AI confermato: <span class="log-time">${t.nome}</span><br>`}<span class="log-ok">✓</span> Revisione: <span class="log-time">APPROVATA</span><br><span class="log-ok">✓</span> Inviata a: <span class="log-time">giulia.trentini@tecnoservice.it</span><br><span class="log-ok">✓</span> Timestamp: <span class="log-time">${ts}</span><br><span class="log-warn">⏳</span> In attesa risposta da ${t.nome}`;
+  document.getElementById('sentSection').classList.add('visible');
+  document.getElementById('sentSection').scrollIntoView({behavior:'smooth'});
+}
+
+function techRespond(action){
+  if(techDone)return;techDone=true;setStep(6);
+  const t=TEAM[selKey];
+  const ts=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const log=document.getElementById('techLog');
+  document.getElementById('techBtns').style.display='none';
+  if(action==='accept'){
+    log.className='tech-log accepted visible';
+    log.innerHTML=`✅ ${t.nome} ha accettato la presa in carico<br><span class="tech-log-neutral">Intervento registrato — ${currentTicketId} · ore ${ts}</span>`;
+  }else{
+    log.className='tech-log declined visible';
+    log.innerHTML=`⚠️ ${t.nome}: non disponibile — già impegnato<br><span class="tech-log-amber">La coordinatrice Giulia Trentini verrà notificata automaticamente per riassegnare l'intervento a un tecnico disponibile.</span><br><span class="tech-log-neutral">Ticket ${currentTicketId} in riassegnazione · ore ${ts}</span>`;
+  }
+  log.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function resetAll(){
+  ['azienda','referente','emailCliente','macchinario','problema'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('analyzeBtn').disabled=false;
+  document.getElementById('resultSection').classList.remove('visible');
+  document.getElementById('loadingState').classList.remove('visible');
+  ['ls1','ls2','ls3','ls4','ls5'].forEach(id=>document.getElementById(id).classList.remove('visible','done'));
+  document.getElementById('overrideNote').innerHTML='';
+  isEditing=false;techDone=false;aiKey='';selKey='';
+  highlightTech(null);setStep(1);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

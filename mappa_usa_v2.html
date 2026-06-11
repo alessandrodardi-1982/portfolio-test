@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mappa Vendite USA v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<style>
+:root{
+  --navy-900:#00112b;--navy-800:#00183a;--navy-750:#031f44;--navy-700:#062a52;--navy-600:#0a3a6b;
+  --line:rgba(124,194,255,0.12);--line-2:rgba(124,194,255,0.22);
+  --accent:#2ca1fe;--accent-2:#5cb8ff;--accent-3:#8fccff;--accent-deep:#1d6fc2;--glow:rgba(44,161,254,0.45);
+  --t1:#eef4fb;--t2:#9fbbd9;--t3:#5d7da0;--pos:#34d399;--neg:#fb7185;--amber:#fbbf24;
+  --red:#fb7185;--green:#34d399;--gold:#fbbf24;--blue:#2ca1fe;--bg:#00112b;--bg2:#062a52;--border:rgba(124,194,255,0.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--navy-900);color:var(--t1);min-height:100vh;-webkit-font-smoothing:antialiased;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 55% at 8% -5%, rgba(44,161,254,0.16) 0%, transparent 55%),
+            radial-gradient(ellipse 60% 50% at 100% 0%, rgba(29,111,194,0.14) 0%, transparent 50%),
+            radial-gradient(ellipse 90% 60% at 50% 110%, rgba(44,161,254,0.08) 0%, transparent 60%);}
+.hdr{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+  padding:1.4rem 3rem;border-bottom:1px solid var(--line);background:linear-gradient(180deg, rgba(0,24,58,0.94), rgba(0,17,43,0.8));backdrop-filter:blur(12px);overflow:hidden;}
+.hdr::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg, transparent, var(--accent) 35%, var(--accent-2) 50%, var(--accent) 65%, transparent);opacity:.7;}
+.hex-deco{position:absolute;top:50%;right:220px;transform:translateY(-50%);opacity:.3;pointer-events:none;}
+.hdr-left{display:flex;align-items:center;gap:1rem;z-index:1;}
+.logo-ring{width:46px;height:46px;border-radius:50%;border:2px solid var(--line-2);box-shadow:0 0 20px var(--glow);overflow:hidden;flex-shrink:0;}
+.logo-ring img{width:100%;height:100%;object-fit:cover;}
+.hdr-title{font-family:'Sora',sans-serif;font-size:1.2rem;font-weight:800;letter-spacing:-.02em;}
+.hdr-title .accent{background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.hdr-sub{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--t3);margin-top:.3rem;}
+.badge{display:flex;align-items:center;gap:.45rem;padding:.4rem .85rem;border-radius:2rem;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);font-size:.7rem;color:var(--pos);font-weight:600;letter-spacing:.05em;z-index:1;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--pos);box-shadow:0 0 8px var(--pos);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(1.5)}}
+.wrap{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:2.2rem 3rem 4rem;}
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1.3rem;margin-bottom:1.8rem;}
+.kpi-s{position:relative;overflow:hidden;background:linear-gradient(160deg, var(--navy-700) 0%, var(--navy-750) 100%);border:1px solid var(--line);border-radius:1.1rem;padding:1.5rem 1.6rem;transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease;}
+.kpi-s::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent-2));}
+.kpi-s:hover{transform:translateY(-4px);border-color:var(--line-2);box-shadow:0 14px 40px rgba(0,0,0,.45),0 0 26px var(--glow);}
+.kpi-s-lbl{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--t2);margin-bottom:.6rem;}
+.kpi-s-val{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;letter-spacing:-.02em;line-height:1;}
+.kpi-s-note{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--t3);margin-top:.55rem;}
+.map-wrap{position:relative;background:linear-gradient(160deg, var(--navy-750) 0%, rgba(0,24,58,0.6) 100%);border:1px solid var(--line);border-radius:1.1rem;padding:1.8rem;margin-bottom:1.8rem;}
+.map-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:1rem;}
+.map-title{font-family:'Sora',sans-serif;font-size:1.05rem;font-weight:700;letter-spacing:-.01em;}
+.map-sub{font-size:.7rem;color:var(--t3);margin-top:.25rem;}
+.toggle{display:flex;gap:.45rem;}
+.tog-btn{padding:.35rem .85rem;border-radius:.55rem;border:1px solid var(--line);background:rgba(44,161,254,0.04);color:var(--t2);font-size:.7rem;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .2s;}
+.tog-btn:hover{border-color:var(--line-2);color:var(--t1);}
+.tog-btn.active{background:var(--accent);border-color:var(--accent);color:#00112b;font-weight:600;}
+.legend{display:flex;align-items:center;gap:.6rem;margin-top:.7rem;justify-content:flex-end;}
+.legend-label{font-size:.62rem;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+.legend-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;width:150px;border:1px solid var(--line);}
+.legend-bar div{flex:1;}
+#map-svg{width:100%;height:auto;display:block;}
+.state-path{cursor:pointer;stroke:#00112b;stroke-width:.5;transition:stroke-width .1s,opacity .1s;}
+.state-path:hover{stroke:#eef4fb;stroke-width:1.2;opacity:.88;}
+#tooltip{position:fixed;background:#031f44;border:1px solid rgba(44,161,254,0.4);border-radius:.7rem;padding:.85rem 1.1rem;pointer-events:none;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--t1);display:none;z-index:200;min-width:190px;box-shadow:0 10px 30px rgba(0,0,0,0.6);}
+#tooltip .tt-state{font-family:'Sora',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.55rem;color:var(--accent-2);}
+#tooltip .tt-row{display:flex;justify-content:space-between;gap:1rem;color:var(--t2);margin-top:.28rem;}
+#tooltip .tt-val{color:var(--t1);}
+#tooltip .tt-neg{color:var(--neg);}
+.analisi-wrap{margin-bottom:1.8rem;}
+.analisi-title{font-family:'Sora',sans-serif;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:var(--t2);margin:2rem 0 1.1rem;display:flex;align-items:center;gap:.8rem;}
+.analisi-title::after{content:'';flex:1;height:1px;background:var(--line);}
+.stato-card{position:relative;overflow:hidden;background:linear-gradient(160deg, var(--navy-700) 0%, var(--navy-750) 100%);border:1px solid rgba(251,113,133,0.25);border-radius:1.1rem;padding:1.5rem 1.7rem;margin-bottom:1rem;}
+.stato-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--neg),#ff9aa8);}
+.stato-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;gap:1rem;flex-wrap:wrap;}
+.stato-name{font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:700;}
+.stato-badge{display:flex;gap:.45rem;flex-wrap:wrap;}
+.sbadge{padding:.25rem .6rem;border-radius:2rem;font-size:.64rem;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.sbadge-red{background:rgba(251,113,133,0.12);color:var(--neg);border:1px solid rgba(251,113,133,0.25);}
+.sbadge-gold{background:rgba(251,191,36,0.1);color:var(--amber);border:1px solid rgba(251,191,36,0.22);}
+.stato-kpi{display:flex;gap:2rem;margin-bottom:1rem;flex-wrap:wrap;}
+.skpi{font-family:'JetBrains Mono',monospace;}
+.skpi-lbl{font-size:.6rem;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;}
+.skpi-val{font-size:1rem;font-weight:700;margin-top:.2rem;}
+.stato-causa{font-size:.78rem;color:var(--t2);line-height:1.65;margin-bottom:1rem;padding-left:.9rem;border-left:2px solid rgba(44,161,254,0.35);}
+.stato-causa strong{color:var(--t1);}
+.causa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;}
+.causa-item{background:rgba(44,161,254,0.05);border:1px solid var(--line);border-radius:.6rem;padding:.7rem .9rem;}
+.causa-item-lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:.35rem;}
+.causa-item-val{font-size:.82rem;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.causa-item-sub{font-size:.62rem;color:var(--t3);margin-top:.2rem;}
+.neg{color:var(--neg);} .warn{color:var(--amber);}
+.azione{display:flex;align-items:flex-start;gap:.6rem;margin-top:1rem;padding:.8rem 1rem;background:rgba(44,161,254,0.06);border:1px solid rgba(44,161,254,0.2);border-radius:.6rem;}
+.azione-icon{color:var(--accent-2);font-size:.85rem;flex-shrink:0;margin-top:.05rem;font-weight:700;}
+.azione-text{font-size:.74rem;color:var(--t2);line-height:1.55;}
+.azione-text strong{color:var(--accent-2);}
+.top-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem;}
+.top-box{background:linear-gradient(160deg, var(--navy-750) 0%, rgba(0,24,58,0.6) 100%);border:1px solid var(--line);border-radius:1.1rem;padding:1.5rem;}
+.top-title{font-family:'Sora',sans-serif;font-size:.8rem;font-weight:700;margin-bottom:1rem;}
+.top-row{display:flex;align-items:center;gap:.8rem;padding:.5rem 0;border-bottom:1px solid var(--line);}
+.top-rank{font-size:.62rem;color:var(--t3);font-family:'JetBrains Mono',monospace;width:18px;}
+.top-name{font-size:.78rem;flex:1;}
+.top-bar-wrap{width:90px;height:5px;background:rgba(124,194,255,0.08);border-radius:3px;}
+.top-bar{height:5px;border-radius:3px;}
+.top-val{font-size:.7rem;font-family:'JetBrains Mono',monospace;color:var(--t2);width:64px;text-align:right;}
+footer{text-align:center;padding:2.2rem;font-size:.7rem;color:var(--t3);font-family:'JetBrains Mono',monospace;position:relative;z-index:1;}
+footer span{color:var(--accent-2);}
+@media(max-width:1000px){.kpi-strip{grid-template-columns:repeat(2,1fr);}.top-wrap{grid-template-columns:1fr;}.causa-grid{grid-template-columns:1fr 1fr;}.hex-deco{display:none;}}
+@media(max-width:560px){.kpi-strip,.causa-grid{grid-template-columns:1fr;}.wrap{padding:1.2rem 1.2rem 2.5rem;}.hdr{padding:1.1rem 1.2rem;}}
+</style>
+</head>
+<body>
+
+
+
+<div id="tooltip">
+  <div class="tt-state" id="tt-state"></div>
+  <div class="tt-row"><span>Fatturato</span><span class="tt-val" id="tt-sales"></span></div>
+  <div class="tt-row"><span>Profitto</span><span id="tt-profit"></span></div>
+  <div class="tt-row"><span>Transazioni</span><span class="tt-val" id="tt-n"></span></div>
+  <div class="tt-row"><span>Margine</span><span class="tt-val" id="tt-margin"></span></div>
+</div>
+
+<header class="hdr">
+  <svg class="hex-deco" width="200" height="110" viewBox="0 0 200 110" fill="none"><g stroke="#2ca1fe" stroke-width="1.2" opacity="0.5"><polygon points="40,10 70,27 70,61 40,78 10,61 10,27" fill="rgba(44,161,254,0.05)"/><polygon points="100,2 130,19 130,53 100,70 70,53 70,19" fill="rgba(44,161,254,0.08)"/><polygon points="150,26 180,43 180,77 150,94 120,77 120,43" fill="rgba(44,161,254,0.04)"/></g></svg>
+  <div class="hdr-left">
+    <div class="logo-ring"><img id="logo" src="" alt="logo"></div>
+    <div>
+      <div class="hdr-title">Mappa Vendite <span class="accent">USA</span></div>
+      <div class="hdr-sub">Fatturato &amp; Profitto per Stato &middot; 2014–2017</div>
+    </div>
+  </div>
+  <div class="badge"><span class="dot"></span>48 STATI</div>
+</header>
+
+<main class="wrap">
+
+  <div class="kpi-strip">
+    <div class="kpi-s">
+      <div class="kpi-s-lbl">Stato Top (Fatturato)</div>
+      <div class="kpi-s-val" style="color:var(--accent)">California</div>
+      <div class="kpi-s-note">€278.977 · 1.817 ordini</div>
+    </div>
+    <div class="kpi-s">
+      <div class="kpi-s-lbl">Stato Top (Profitto)</div>
+      <div class="kpi-s-val" style="color:var(--green)">California</div>
+      <div class="kpi-s-note">€230.003 · margine 82,4%</div>
+    </div>
+    <div class="kpi-s">
+      <div class="kpi-s-lbl">Stati in Perdita</div>
+      <div class="kpi-s-val" style="color:var(--neg)">4 stati</div>
+      <div class="kpi-s-note">TX, PA, OH, IL · -€51K totale</div>
+    </div>
+    <div class="kpi-s">
+      <div class="kpi-s-lbl">Copertura Geografica</div>
+      <div class="kpi-s-val" style="color:var(--accent)">48 stati</div>
+      <div class="kpi-s-note">Presenza nazionale</div>
+    </div>
+  </div>
+
+  <!-- MAPPA -->
+  <div class="map-wrap">
+    <div class="map-header">
+      <div>
+        <div class="map-title">Distribuzione Geografica</div>
+        <div class="map-sub">Passa sopra uno stato · Rosso scuro = perdita</div>
+      </div>
+      <div>
+        <div class="toggle">
+          <button class="tog-btn active" onclick="setMode('sales',this)">Fatturato</button>
+          <button class="tog-btn" onclick="setMode('profit',this)">Profitto</button>
+        </div>
+        <div class="legend">
+          <span class="legend-label" id="lg-lo">Basso</span>
+          <div class="legend-bar" id="legend-bar"></div>
+          <span class="legend-label" id="lg-hi">Alto</span>
+        </div>
+      </div>
+    </div>
+    <svg id="map-svg" viewBox="0 0 975 610"></svg>
+    <div id="map-loading" style="text-align:center;padding:3rem;color:var(--t3);font-family:'JetBrains Mono',monospace;font-size:.75rem;">Caricamento mappa...</div>
+  </div>
+
+  <!-- ANALISI CEO -->
+  <div class="analisi-wrap">
+    <div class="analisi-title">Analisi CEO — Stati in perdita: cause e azioni correttive</div>
+
+    <!-- TEXAS -->
+    <div class="stato-card">
+      <div class="stato-header">
+        <div class="stato-name">Texas</div>
+        <div class="stato-badge">
+          <span class="sbadge sbadge-red">Perdita -€15.622</span>
+          <span class="sbadge sbadge-red">Sconto medio 36,5%</span>
+          <span class="sbadge sbadge-gold">896 transazioni</span>
+        </div>
+      </div>
+      <div class="stato-kpi">
+        <div class="skpi"><div class="skpi-lbl">Fatturato</div><div class="skpi-val">€107.956</div></div>
+        <div class="skpi"><div class="skpi-lbl">Profitto</div><div class="skpi-val neg">-€15.622</div></div>
+        <div class="skpi"><div class="skpi-lbl">Margine</div><div class="skpi-val neg">-14,5%</div></div>
+      </div>
+      <div class="stato-causa">
+        Il Texas è il terzo stato per fatturato ma l'unico a generare una perdita così pesante nonostante i volumi. 
+        Il problema principale è la <strong>politica di sconto aggressiva su Furniture (44,1%) e Office Supplies (38,8%)</strong>, 
+        che porta entrambe le categorie in territorio negativo. Technology è l'unica categoria redditizia (+54,3% di margine) 
+        e di fatto sussidisce le perdite delle altre due. Binders e Furnishings sono le sotto-categorie più critiche.
+      </div>
+      <div class="causa-grid">
+        <div class="causa-item">
+          <div class="causa-item-lbl">Furniture</div>
+          <div class="causa-item-val neg">-€28.248</div>
+          <div class="causa-item-sub">Sconto medio 44,1%</div>
+        </div>
+        <div class="causa-item">
+          <div class="causa-item-lbl">Office Supplies</div>
+          <div class="causa-item-val neg">-€8.352</div>
+          <div class="causa-item-sub">Sconto medio 38,8%</div>
+        </div>
+        <div class="causa-item">
+          <div class="causa-item-lbl">Technology</div>
+          <div class="causa-item-val" style="color:var(--green)">+€20.978</div>
+          <div class="causa-item-sub">Sconto medio 21,0%</div>
+        </div>
+      </div>
+      <div class="azione">
+        <span class="azione-icon">→</span>
+        <div class="azione-text"><strong>Azione consigliata:</strong> Introdurre un tetto massimo di sconto del 20% su Furniture e Binders in Texas. 
+        Portare il margine di Furniture a breakeven eliminerebbe da solo oltre €28K di perdita.</div>
+      </div>
+    </div>
+
+    <!-- ILLINOIS -->
+    <div class="stato-card">
+      <div class="stato-header">
+        <div class="stato-name">Illinois</div>
+        <div class="stato-badge">
+          <span class="sbadge sbadge-red">Perdita -€15.848</span>
+          <span class="sbadge sbadge-red">Sconto medio 38,8%</span>
+          <span class="sbadge sbadge-gold">445 transazioni</span>
+        </div>
+      </div>
+      <div class="stato-kpi">
+        <div class="skpi"><div class="skpi-lbl">Fatturato</div><div class="skpi-val">€49.208</div></div>
+        <div class="skpi"><div class="skpi-lbl">Profitto</div><div class="skpi-val neg">-€15.848</div></div>
+        <div class="skpi"><div class="skpi-lbl">Margine</div><div class="skpi-val neg">-32,2%</div></div>
+      </div>
+      <div class="stato-causa">
+        L'Illinois è il caso più grave in termini di rapporto perdita/fatturato: <strong>-32,2% di margine</strong> su appena €49K di ricavi. 
+        Furniture è completamente fuori controllo con uno <strong>sconto medio del 47,3%</strong> che genera un margine negativo del -101,5% — 
+        ogni euro venduto in Furniture costa 2 euro. Furnishings, Chairs e Binders sono le tre sottocategorie più distruttive. 
+        Anche qui solo Technology è in positivo.
+      </div>
+      <div class="causa-grid">
+        <div class="causa-item">
+          <div class="causa-item-lbl">Furniture</div>
+          <div class="causa-item-val neg">-€22.028</div>
+          <div class="causa-item-sub">Sconto medio 47,3% ⚠</div>
+        </div>
+        <div class="causa-item">
+          <div class="causa-item-lbl">Office Supplies</div>
+          <div class="causa-item-val neg">-€3.406</div>
+          <div class="causa-item-sub">Sconto medio 40,0%</div>
+        </div>
+        <div class="causa-item">
+          <div class="causa-item-lbl">Technology</div>
+          <div class="causa-item-val" style="color:var(--green)">+€9.586</div>
+          <div class="causa-item-sub">Sconto medio 20,6%</div>
+        </div>
+      </div>
+      <div class="azione">
+        <span class="azione-icon">→</span>
+        <div class="azione-text"><strong>Azione consigliata:</strong> Revisione urgente della politica commerciale su Furniture in Illinois. 
+        Con sconti al 47% il prodotto viene venduto sotto costo. Valutare la sospensione temporanea delle vendite Furniture 
+        finché non viene definito un listino sostenibile.</div>
+      </div>
+    </div>
+
+    <!-- PENNSYLVANIA -->
+    <div class="stato-card">
+      <div class="stato-header">
+        <div class="stato-name">Pennsylvania</div>
+        <div class="stato-badge">
+          <span class="sbadge sbadge-red">Perdita -€12.066</span>
+          <span class="sbadge sbadge-red">Sconto medio 32,3%</span>
+          <span class="sbadge sbadge-gold">536 transazioni</span>
+        </div>
+      </div>
+      <div class="stato-kpi">
+        <div class="skpi"><div class="skpi-lbl">Fatturato</div><div class="skpi-val">€64.237</div></div>
+        <div class="skpi"><div class="skpi-lbl">Profitto</div><div class="skpi-val neg">-€12.066</div></div>
+        <div class="skpi"><div class="skpi-lbl">Margine</div><div class="skpi-val neg">-18,8%</div></div>
+      </div>
+      <div class="stato-causa">
+        La Pennsylvania ha un profilo diverso dagli altri: qui anche <strong>Technology è in perdita (-34,9%)</strong>, con Phones che da sola 
+        brucia €8.437. Furniture è negativa come altrove, ma la criticità è lo sconto elevato applicato anche alla tecnologia (33,4%), 
+        categoria che negli altri stati è sempre profittevole. L'unica categoria in positivo è Office Supplies (+23,7%).
+      </div>
+      <div class="causa-grid">
+        <div class="causa-item">
+          <div class="causa-item-lbl">Furniture</div>
+          <div class="causa-item-val neg">-€9.679</div>
+          <div class="causa-item-sub">Sconto medio 26,3%</div>
+        </div>
+        <div class="causa-item">
+          <div class="causa-item-lbl">Technology</div>
+          <div class="causa-item-val neg">-€7.294</div>
+          <div class="causa-item-sub">Sconto medio 33,4% ⚠</div>
+        </div>
+        <div class="causa-item">
+          <div class="causa-item-lbl">Office Supplies</div>
+          <div class="causa-item-val" style="color:var(--green)">+€4.907</div>
+          <div class="causa-item-sub">Sconto medio 33,9%</div>
+        </div>
+      </div>
+      <div class="azione">
+        <span class="azione-icon">→</span>
+        <div class="azione-text"><strong>Azione consigliata:</strong> Priorità su Phones — categoria solitamente ad alto margine, 
+        qui venduta sotto costo per sconti eccessivi. Allineare la politica di sconto su Technology Pennsylvania 
+        agli standard nazionali (~21%) recupererebbe gran parte della perdita.</div>
+      </div>
+    </div>
+
+    <!-- OHIO -->
+    <div class="stato-card">
+      <div class="stato-header">
+        <div class="stato-name">Ohio</div>
+        <div class="stato-badge">
+          <span class="sbadge sbadge-red">Perdita -€7.564</span>
+          <span class="sbadge sbadge-red">Sconto medio 32,1%</span>
+          <span class="sbadge sbadge-gold">435 transazioni</span>
+        </div>
+      </div>
+      <div class="stato-kpi">
+        <div class="skpi"><div class="skpi-lbl">Fatturato</div><div class="skpi-val">€51.482</div></div>
+        <div class="skpi"><div class="skpi-lbl">Profitto</div><div class="skpi-val neg">-€7.564</div></div>
+        <div class="skpi"><div class="skpi-lbl">Margine</div><div class="skpi-val neg">-14,7%</div></div>
+      </div>
+      <div class="stato-causa">
+        L'Ohio replica il pattern Pennsylvania: <strong>sia Furniture che Technology in perdita</strong> per sconti superiori al 30%. 
+        Phones e Binders sono le sottocategorie più critiche. Office Supplies tiene (+22,4%) ma non basta a compensare. 
+        La perdita è la più contenuta tra i quattro stati critici e la più recuperabile con interventi mirati.
+      </div>
+      <div class="causa-grid">
+        <div class="causa-item">
+          <div class="causa-item-lbl">Furniture</div>
+          <div class="causa-item-val neg">-€7.416</div>
+          <div class="causa-item-sub">Sconto medio 27,6%</div>
+        </div>
+        <div class="causa-item">
+          <div class="causa-item-lbl">Technology</div>
+          <div class="causa-item-val neg">-€3.826</div>
+          <div class="causa-item-sub">Sconto medio 31,5%</div>
+        </div>
+        <div class="causa-item">
+          <div class="causa-item-lbl">Office Supplies</div>
+          <div class="causa-item-val" style="color:var(--green)">+€3.677</div>
+          <div class="causa-item-sub">Sconto medio 33,7%</div>
+        </div>
+      </div>
+      <div class="azione">
+        <span class="azione-icon">→</span>
+        <div class="azione-text"><strong>Azione consigliata:</strong> L'Ohio è il caso più recuperabile. 
+        Ridurre gli sconti su Technology al 20% e su Furniture al 15% porterebbe entrambe le categorie in positivo, 
+        stimando un recupero di circa <strong>€8-10K di margine annuo</strong>.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TOP TABLE -->
+  <div class="top-wrap">
+    <div class="top-box">
+      <div class="top-title" style="color:var(--green)">▲ Top 8 — Fatturato</div>
+      <div id="top-sales-list"></div>
+    </div>
+    <div class="top-box">
+      <div class="top-title" style="color:var(--gold)">★ Top 8 — Margine % (min. 10 ordini)</div>
+      <div id="top-margin-list"></div>
+    </div>
+  </div>
+
+</main>
+<footer>Dati reali da dataset vendite · <span>8.977 transazioni</span> · Mappa D3.js + TopoJSON US Atlas</footer>
+
+<script>
+document.getElementById('logo').src = 'data:image/png;base64,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iIiIiIiIiIisXCipa+ldTVkDJoXc2uHzjuPiFfREWr9bbLKS6Ur4oYYa6mPEU1Rwew97H9D45B8StCav2Q1NHUubaJnQSN50taC0/qvx8WR7VMtWK6ipK6Ew1lNFOzukaDj1dy8ZYI5faCkaHFaqhP0L7DhqO7/CvPW92S9Wd5N2ttVTtHOVzd6P5Yy3511viDkd6nlc9n9rqMmiqJqMnhun7Yz4ic/OsC1BsTo6syPfaLXVOfzfBmCVx7yRu/tWg/DT9h3erXTbZttaoj7W+R81EpFv+67B4WnDKC+UxHSne2YfO137VYsnZ8dc7gIPsjdKOFvGWSopgN0dwyBk+C1zQTDmUszarDnDNxHWD8LrRDRn1Lk08Id6TiGsHH196k5B2YrC3Am1Pc3gfiwsb/iu5oeznoeF7XVdde60DnG+eNjD8hgPz9VpyYbVSnMWHWrLRba4BQR3a8uedSGnuF7KJD3NEhMW81vTvXbaY0rqPU0/kbDZa24He3XPhiJYw8/Sf7lvtIUz7Dsn2d2Uh1HpWgkeDvb9UDUEHvHlC7Hsws0ijjijbHExsbGjDWtGAB4BesWAuP1j+5aVfyrxNBFFASeLzbwF794UYtC9my6VQjqdYXRtviPF1JRkSTcuRecsafUHhSA0Zo3TOj6I0unrTBRhwxJKBvSy9fSecuPEnhnAzwAXfopmmoYKf2Bnx51zfGdqsUxnKpk9X7oyb3c/bcoiIttV1ERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERf/Z';
+
+const DATA = {
+  "Alabama":{"s":12842,"p":9912,"n":52},
+  "Arizona":{"s":23256,"p":333,"n":203},
+  "Arkansas":{"s":4558,"p":6910,"n":51},
+  "California":{"s":278977,"p":230003,"n":1817},
+  "Colorado":{"s":24263,"p":2967,"n":169},
+  "Connecticut":{"s":8017,"p":10707,"n":73},
+  "Delaware":{"s":7964,"p":12906,"n":78},
+  "Florida":{"s":43278,"p":11892,"n":355},
+  "Georgia":{"s":21628,"p":29010,"n":162},
+  "Idaho":{"s":2558,"p":3558,"n":19},
+  "Illinois":{"s":48481,"p":-15848,"n":443},
+  "Indiana":{"s":22513,"p":21054,"n":130},
+  "Iowa":{"s":2887,"p":3456,"n":26},
+  "Kansas":{"s":2914,"p":3896,"n":24},
+  "Kentucky":{"s":18818,"p":22844,"n":120},
+  "Louisiana":{"s":6731,"p":5270,"n":39},
+  "Maine":{"s":755,"p":948,"n":6},
+  "Maryland":{"s":15541,"p":16306,"n":94},
+  "Massachusetts":{"s":13561,"p":15226,"n":117},
+  "Michigan":{"s":37588,"p":42961,"n":230},
+  "Minnesota":{"s":13148,"p":10968,"n":73},
+  "Mississippi":{"s":5343,"p":7732,"n":44},
+  "Missouri":{"s":8644,"p":6704,"n":56},
+  "Montana":{"s":2589,"p":2130,"n":14},
+  "Nebraska":{"s":5676,"p":4207,"n":34},
+  "Nevada":{"s":8705,"p":5566,"n":34},
+  "New Hampshire":{"s":3070,"p":4372,"n":23},
+  "New Jersey":{"s":15561,"p":14902,"n":117},
+  "New Mexico":{"s":3921,"p":5235,"n":34},
+  "New York":{"s":148031,"p":134448,"n":997},
+  "North Carolina":{"s":28041,"p":12598,"n":226},
+  "North Dakota":{"s":215,"p":495,"n":6},
+  "Ohio":{"s":51399,"p":-7564,"n":434},
+  "Oklahoma":{"s":10118,"p":10813,"n":54},
+  "Oregon":{"s":15420,"p":2602,"n":116},
+  "Pennsylvania":{"s":62281,"p":-12066,"n":531},
+  "Rhode Island":{"s":15125,"p":10054,"n":52},
+  "South Carolina":{"s":7852,"p":7168,"n":40},
+  "South Dakota":{"s":509,"p":736,"n":10},
+  "Tennessee":{"s":16600,"p":3027,"n":170},
+  "Texas":{"s":105559,"p":-15622,"n":890},
+  "Utah":{"s":8520,"p":6715,"n":49},
+  "Vermont":{"s":2417,"p":2084,"n":8},
+  "Virginia":{"s":36592,"p":35130,"n":196},
+  "Washington":{"s":71890,"p":58389,"n":459},
+  "West Virginia":{"s":762,"p":-699,"n":3},
+  "Wisconsin":{"s":14266,"p":17536,"n":91}
+};
+
+let mode = 'sales';
+const tt = document.getElementById('tooltip');
+
+function fmt(v){ return (v<0?'-':'')+'€'+Math.abs(v).toLocaleString('it-IT',{maximumFractionDigits:0}); }
+
+function getColor(name, m) {
+  const d = DATA[name];
+  if (!d) return '#0a2540';
+  const val = m==='sales' ? d.s : d.p;
+  if (m==='sales') {
+    const mx = Math.max(...Object.values(DATA).map(x=>x.s));
+    const t = Math.pow(val/mx, 0.5);
+    return d3.interpolateRgb('#0a2540','#2ca1fe')(t);
+  } else {
+    if (val < 0) {
+      const mn = Math.min(...Object.values(DATA).map(x=>x.p));
+      const t = Math.pow(val/mn, 0.6);
+      return d3.interpolateRgb('#0a2540','#fb7185')(t);
+    }
+    const mx = Math.max(...Object.values(DATA).map(x=>Math.max(0,x.p)));
+    const t = Math.pow(val/mx, 0.5);
+    return d3.interpolateRgb('#0a2540','#34d399')(t);
+  }
+}
+
+function buildLegend(m) {
+  const bar = document.getElementById('legend-bar');
+  bar.innerHTML = '';
+  for(let i=0;i<20;i++){
+    const t=i/19;
+    const div=document.createElement('div');
+    if(m==='sales'){
+      div.style.background = d3.interpolateRgb('#0a2540','#2ca1fe')(t);
+    } else {
+      div.style.background = t<0.5
+        ? d3.interpolateRgb('#fb7185','#0a2540')(t*2)
+        : d3.interpolateRgb('#0a2540','#34d399')((t-0.5)*2);
+    }
+    bar.appendChild(div);
+  }
+}
+
+async function buildMap(m) {
+  const svg = d3.select('#map-svg');
+  svg.selectAll('*').remove();
+
+  const loading = document.getElementById('map-loading');
+
+  try {
+    const us = await d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json');
+    loading.style.display = 'none';
+
+    const states = topojson.feature(us, us.objects.states);
+    const mesh = topojson.mesh(us, us.objects.states, (a,b)=>a!==b);
+
+    // State FIPS to name mapping
+    const fipsMap = {
+      "01":"Alabama","02":"Alaska","04":"Arizona","05":"Arkansas","06":"California",
+      "08":"Colorado","09":"Connecticut","10":"Delaware","11":"District of Columbia",
+      "12":"Florida","13":"Georgia","15":"Hawaii","16":"Idaho","17":"Illinois",
+      "18":"Indiana","19":"Iowa","20":"Kansas","21":"Kentucky","22":"Louisiana",
+      "23":"Maine","24":"Maryland","25":"Massachusetts","26":"Michigan","27":"Minnesota",
+      "28":"Mississippi","29":"Missouri","30":"Montana","31":"Nebraska","32":"Nevada",
+      "33":"New Hampshire","34":"New Jersey","35":"New Mexico","36":"New York",
+      "37":"North Carolina","38":"North Dakota","39":"Ohio","40":"Oklahoma","41":"Oregon",
+      "42":"Pennsylvania","44":"Rhode Island","45":"South Carolina","46":"South Dakota",
+      "47":"Tennessee","48":"Texas","49":"Utah","50":"Vermont","51":"Virginia",
+      "53":"Washington","54":"West Virginia","55":"Wisconsin","56":"Wyoming"
+    };
+
+    const proj = d3.geoAlbersUsa().scale(1300).translate([487.5,305]);
+    const path = d3.geoPath().projection(proj);
+
+    svg.append('g').selectAll('path')
+      .data(states.features)
+      .join('path')
+      .attr('class','state-path')
+      .attr('d', path)
+      .attr('fill', f => {
+        const name = fipsMap[f.id.toString().padStart(2,'0')];
+        return getColor(name, m);
+      })
+      .on('mousemove', function(event, f) {
+        const name = fipsMap[f.id.toString().padStart(2,'0')];
+        const d = DATA[name];
+        if (!d) return;
+        tt.style.display='block';
+        tt.style.left=(event.clientX+16)+'px';
+        tt.style.top=(event.clientY-10)+'px';
+        document.getElementById('tt-state').textContent = name||'';
+        document.getElementById('tt-sales').textContent = fmt(d.s);
+        const pe = document.getElementById('tt-profit');
+        pe.textContent = fmt(d.p);
+        pe.className = d.p<0?'tt-neg':'tt-val';
+        document.getElementById('tt-n').textContent = d.n+' transazioni';
+        document.getElementById('tt-margin').textContent = (d.p/d.s*100).toFixed(1)+'%';
+      })
+      .on('mouseleave', ()=>{ tt.style.display='none'; });
+
+    // State borders
+    svg.append('path')
+      .datum(mesh)
+      .attr('fill','none')
+      .attr('stroke','#00112b')
+      .attr('stroke-width','0.8')
+      .attr('d', path);
+
+    // Outer border
+    svg.append('path')
+      .datum(topojson.mesh(us, us.objects.states, (a,b)=>a===b))
+      .attr('fill','none')
+      .attr('stroke','rgba(124,194,255,0.18)')
+      .attr('stroke-width','1')
+      .attr('d', path);
+
+  } catch(e) {
+    loading.textContent = 'Errore caricamento mappa. Verifica la connessione internet.';
+    console.error(e);
+  }
+}
+
+function setMode(m, btn) {
+  mode = m;
+  document.querySelectorAll('.tog-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const lo=document.getElementById('lg-lo'),hi=document.getElementById('lg-hi');
+  if(lo&&hi){lo.textContent=m==='sales'?'Basso':'Perdita';hi.textContent=m==='sales'?'Alto':'Profitto';}
+  buildMap(m);
+  buildLegend(m);
+}
+
+// Top tables
+function buildTables() {
+  const bySales = Object.entries(DATA).sort((a,b)=>b[1].s-a[1].s).slice(0,8);
+  const maxS = bySales[0][1].s;
+  const el = document.getElementById('top-sales-list');
+  bySales.forEach(([st,d],i)=>{
+    el.innerHTML+=`<div class="top-row">
+      <span class="top-rank">${i+1}</span>
+      <span class="top-name">${st}</span>
+      <div class="top-bar-wrap"><div class="top-bar" style="width:${d.s/maxS*100}%;background:var(--accent)"></div></div>
+      <span class="top-val">${fmt(d.s)}</span></div>`;
+  });
+
+  const byM = Object.entries(DATA)
+    .filter(([,d])=>d.p>0&&d.n>=10)
+    .map(([st,d])=>([st,{...d,m:d.p/d.s*100}]))
+    .sort((a,b)=>b[1].m-a[1].m).slice(0,8);
+  const maxM = byM[0][1].m;
+  const el2 = document.getElementById('top-margin-list');
+  byM.forEach(([st,d],i)=>{
+    el2.innerHTML+=`<div class="top-row">
+      <span class="top-rank">${i+1}</span>
+      <span class="top-name">${st}</span>
+      <div class="top-bar-wrap"><div class="top-bar" style="width:${d.m/maxM*100}%;background:var(--pos)"></div></div>
+      <span class="top-val">${d.m.toFixed(1)}%</span></div>`;
+  });
+}
+
+buildMap('sales');
+buildLegend('sales');
+buildTables();
+</script>
+<a href="https://alessandrodardi-1982.github.io/portfolio/" id="btn-portfolio" style="position:fixed;bottom:20px;left:20px;z-index:9999;display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:rgba(0,20,45,0.90);border:1px solid rgba(46,155,236,0.4);border-radius:8px;color:#cddff0;text-decoration:none;font-family:'Hanken Grotesk','DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.01em;backdrop-filter:blur(10px);box-shadow:0 4px 16px rgba(0,0,0,0.45);transition:all 0.2s ease;" onmouseover="this.style.borderColor='rgba(46,155,236,0.85)';this.style.color='#fff';this.style.background='rgba(0,35,70,0.96)'" onmouseout="this.style.borderColor='rgba(46,155,236,0.4)';this.style.color='#cddff0';this.style.background='rgba(0,20,45,0.90)'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Portfolio</a>
+</body>
+</html>

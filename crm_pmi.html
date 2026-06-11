@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRM — Gestione Clienti & Interventi</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a0f1e;
+    --navy-mid: #111827;
+    --navy-panel: #161d2e;
+    --navy-card: #1c2538;
+    --navy-border: #263047;
+    --accent: #2ca1fe;
+    --accent-dim: rgba(44,161,254,0.12);
+    --accent-glow: rgba(44,161,254,0.25);
+    --text-primary: #e8edf5;
+    --text-secondary: #8a9ab5;
+    --text-muted: #4e5d78;
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.12);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167,139,250,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  /* LAYOUT */
+  .app { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: var(--navy-panel);
+    border-right: 1px solid var(--navy-border);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+  .main { flex: 1; overflow-x: hidden; }
+
+  /* SIDEBAR */
+  .sidebar-logo {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--navy-border);
+  }
+  .sidebar-logo .logo-mark {
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+  .sidebar-logo .logo-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .nav-section {
+    padding: 12px 12px 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    margin: 1px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 13.5px;
+    font-weight: 500;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+  }
+  .nav-item:hover { background: var(--accent-dim); color: var(--text-primary); }
+  .nav-item.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-color: rgba(44,161,254,0.2);
+  }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    border: 1px solid rgba(44,161,254,0.2);
+  }
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px;
+    border-top: 1px solid var(--navy-border);
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--navy-border);
+    background: var(--navy-panel);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--navy-border);
+    background: var(--navy-card);
+    color: var(--text-primary);
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #1a8fe0; border-color: #1a8fe0; color: #fff; }
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    width: 220px;
+  }
+  .search-box input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    width: 100%;
+  }
+  .search-box input::placeholder { color: var(--text-muted); }
+  .search-box svg { color: var(--text-muted); width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* CONTENT */
+  .content { padding: 24px 28px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* KPI CARDS */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .kpi-card.blue::before { background: var(--accent); }
+  .kpi-card.green::before { background: var(--green); }
+  .kpi-card.amber::before { background: var(--amber); }
+  .kpi-card.purple::before { background: var(--purple); }
+  .kpi-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .kpi-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .kpi-icon {
+    position: absolute;
+    top: 14px; right: 14px;
+    opacity: 0.15;
+    font-size: 28px;
+  }
+
+  /* TABLES */
+  .table-wrap {
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--navy-border);
+  }
+  .table-header-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th {
+    text-align: left;
+    padding: 10px 18px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    font-weight: 500;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--navy-border);
+  }
+  td {
+    padding: 11px 18px;
+    border-bottom: 1px solid rgba(38,48,71,0.5);
+    color: var(--text-primary);
+    font-size: 13px;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(44,161,254,0.04); }
+  .td-mono { font-family: 'JetBrains Mono', monospace; }
+  .td-muted { color: var(--text-secondary); }
+
+  /* BADGES */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+  .badge-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+  .badge-red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+  .badge-blue { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(44,161,254,0.2); }
+  .badge-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+  .badge-gray { background: rgba(138,154,181,0.1); color: var(--text-secondary); border: 1px solid rgba(138,154,181,0.15); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* AVATAR */
+  .avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+    font-family: 'Sora', sans-serif;
+  }
+  .av-blue { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(44,161,254,0.25); }
+  .av-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+  .av-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,0.25); }
+  .av-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.25); }
+  .av-red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+
+  .client-cell { display: flex; align-items: center; gap: 10px; }
+  .client-cell .name { font-weight: 500; }
+  .client-cell .sub { font-size: 11px; color: var(--text-muted); }
+
+  /* PRIORITY */
+  .priority-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    display: inline-block; margin-right: 5px;
+  }
+
+  /* PIPELINE */
+  .pipeline-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .pipeline-col {
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .pipeline-col-header {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--navy-border);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Sora', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .pipeline-card {
+    margin: 10px;
+    padding: 12px;
+    background: var(--navy-panel);
+    border: 1px solid var(--navy-border);
+    border-radius: 8px;
+    cursor: default;
+    transition: border-color 0.15s;
+  }
+  .pipeline-card:hover { border-color: var(--accent); }
+  .pipeline-card .pc-company { font-weight: 500; font-size: 13px; margin-bottom: 4px; }
+  .pipeline-card .pc-desc { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+  .pipeline-card .pc-footer { display: flex; align-items: center; justify-content: space-between; }
+  .pipeline-card .pc-value { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--green); }
+  .pipeline-card .pc-prob { font-size: 11px; color: var(--text-muted); }
+  .prob-bar { height: 3px; border-radius: 2px; background: var(--navy-border); margin-top: 8px; }
+  .prob-fill { height: 100%; border-radius: 2px; background: var(--accent); }
+
+  /* DASHBOARD */
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .chart-card {
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .chart-card-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+  }
+  .bar-chart { display: flex; flex-direction: column; gap: 10px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+  .bar-label { width: 90px; color: var(--text-secondary); text-align: right; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 8px; background: var(--navy-border); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .bar-val { width: 50px; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); font-size: 11px; }
+
+  .funnel { display: flex; flex-direction: column; gap: 6px; }
+  .funnel-row { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+  .funnel-label { width: 80px; color: var(--text-secondary); font-size: 11px; }
+  .funnel-bar { height: 24px; border-radius: 4px; display: flex; align-items: center; padding-left: 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #fff; transition: width 0.6s ease; max-width: calc(100% - 140px); }
+  .funnel-count { width: 52px; text-align: right; color: var(--text-primary); font-size: 11px; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }
+
+  .activity-list { display: flex; flex-direction: column; gap: 0; }
+  .activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(38,48,71,0.5);
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    margin-top: 4px; flex-shrink: 0;
+  }
+  .activity-text { font-size: 12.5px; line-height: 1.5; }
+  .activity-time { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(5,10,20,0.75);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--navy-panel);
+    border: 1px solid var(--navy-border);
+    border-radius: 16px;
+    width: 520px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 0;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  }
+  .modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--navy-border);
+  }
+  .modal-title { font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 600; }
+  .modal-close { cursor: pointer; color: var(--text-muted); padding: 4px; }
+  .modal-close:hover { color: var(--text-primary); }
+  .modal-body { padding: 22px; }
+  .detail-section { margin-bottom: 18px; }
+  .detail-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 500; margin-bottom: 10px; }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .detail-field label { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 3px; }
+  .detail-field span { font-size: 13px; color: var(--text-primary); }
+  .detail-field .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .interventi-mini { display: flex; flex-direction: column; gap: 6px; }
+  .intervento-mini {
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+  }
+  .intervento-mini .im-date { font-family: 'JetBrains Mono', monospace; color: var(--text-muted); width: 80px; flex-shrink: 0; }
+  .intervento-mini .im-desc { flex: 1; }
+  .intervento-mini .im-cost { font-family: 'JetBrains Mono', monospace; color: var(--green); font-size: 11px; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--navy-border); border-radius: 3px; }
+
+  /* RESPONSIVE FIXES */
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .pipeline-grid { grid-template-columns: repeat(2, 1fr); }
+    .dash-grid { grid-template-columns: 1fr; }
+  }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    /* Sidebar diventa bottom nav */
+    .sidebar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      top: auto;
+      width: 100%;
+      height: auto;
+      flex-direction: row;
+      border-right: none;
+      border-top: 1px solid var(--navy-border);
+      padding: 0;
+      z-index: 50;
+    }
+    .sidebar-logo { display: none; }
+    .sidebar-footer { display: none; }
+    .nav-section { display: none; }
+    .sidebar > div:not(.sidebar-logo):not(.sidebar-footer):not(.nav-section) {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      justify-content: space-around;
+      padding: 8px 0;
+    }
+    .nav-item {
+      flex-direction: column;
+      gap: 4px;
+      padding: 6px 10px;
+      margin: 0;
+      font-size: 10px;
+      border-radius: 6px;
+      border: none;
+      text-align: center;
+      min-width: 60px;
+    }
+    .nav-item svg { width: 20px; height: 20px; }
+    .nav-badge { display: none; }
+
+    /* Main si adatta */
+    .main { padding-bottom: 70px; }
+
+    /* Topbar semplificata */
+    .topbar { padding: 12px 16px; }
+    .topbar-title { font-size: 14px; }
+    .search-box { width: 140px; }
+    .topbar-right .btn span { display: none; }
+
+    /* Content padding ridotto */
+    .content { padding: 16px; }
+
+    /* KPI a 2 colonne */
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .kpi-value { font-size: 22px; }
+
+    /* Pipeline a 1 colonna */
+    .pipeline-grid { grid-template-columns: 1fr; }
+
+    /* Tabelle: nascondi colonne meno importanti */
+    .hide-mobile { display: none; }
+
+    /* Modal a schermo intero */
+    .modal {
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      border-radius: 16px 16px 0 0;
+      position: fixed;
+      bottom: 0;
+      max-height: 85vh;
+    }
+    .modal-overlay { align-items: flex-end; }
+
+    /* Dash grid a colonna singola */
+    .dash-grid { grid-template-columns: 1fr; }
+
+    /* Bar labels più corte */
+    .bar-label { width: 70px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">◆ CRM Suite</div>
+      <div class="logo-sub">v1.0 · PMI Italia</div>
+    </div>
+    <div class="nav-section">Principale</div>
+    <div class="nav-item active" onclick="showPage('dashboard', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-section">Gestione</div>
+    <div class="nav-item" onclick="showPage('clienti', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Clienti
+      <span class="nav-badge">12</span>
+    </div>
+    <div class="nav-item" onclick="showPage('interventi', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      Interventi
+      <span class="nav-badge">38</span>
+    </div>
+    <div class="nav-item" onclick="showPage('pipeline', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Pipeline
+      <span class="nav-badge">9</span>
+    </div>
+    <div class="sidebar-footer">
+      Alessandro Dardi<br>
+      <span style="color:var(--accent)">● online</span>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- BANNER DEMO -->
+    <div style="background:rgba(245,158,11,0.10);border-bottom:1px solid rgba(245,158,11,0.25);padding:8px 28px;display:flex;align-items:center;gap:10px;font-family:'DM Sans',sans-serif;font-size:13px;color:#f59e0b;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span><strong>Demo applicativo</strong> — I dati visualizzati sono di esempio. Nessuna informazione viene salvata o trasmessa.</span>
+    </div>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <span class="topbar-title" id="page-title">Dashboard</span>
+      <div class="topbar-right">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" placeholder="Cerca..." id="search-input" oninput="handleSearch(this.value)">
+        </div>
+        <button class="btn btn-primary" onclick="openAddModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nuovo
+        </button>
+      </div>
+    </div>
+
+    <!-- PAGES -->
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active content">
+      <div class="kpi-grid">
+        <div class="kpi-card blue">
+          <div class="kpi-label">Clienti attivi</div>
+          <div class="kpi-value">12</div>
+          <div class="kpi-sub">+2 questo mese</div>
+          <div class="kpi-icon">◆</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-label">Fatturato YTD</div>
+          <div class="kpi-value">€ 187K</div>
+          <div class="kpi-sub">↑ 14% vs anno prec.</div>
+          <div class="kpi-icon">€</div>
+        </div>
+        <div class="kpi-card amber">
+          <div class="kpi-label">Interventi aperti</div>
+          <div class="kpi-value">7</div>
+          <div class="kpi-sub">3 urgenti · 4 ordinari</div>
+          <div class="kpi-icon">⚙</div>
+        </div>
+        <div class="kpi-card purple">
+          <div class="kpi-label">Pipeline valore</div>
+          <div class="kpi-value">€ 94K</div>
+          <div class="kpi-sub">9 opportunità attive</div>
+          <div class="kpi-icon">◈</div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="chart-card">
+          <div class="chart-card-title">Interventi per tecnico</div>
+          <div class="bar-chart" id="tecnico-chart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Pipeline commerciale</div>
+          <div class="funnel" id="funnel-chart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Fatturato per settore</div>
+          <div class="bar-chart" id="settore-chart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Attività recenti</div>
+          <div class="activity-list" id="activity-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTI -->
+    <div id="page-clienti" class="page content">
+      <div class="kpi-grid" style="grid-template-columns: repeat(3,1fr); margin-bottom: 18px;">
+        <div class="kpi-card blue"><div class="kpi-label">Totale clienti</div><div class="kpi-value">12</div><div class="kpi-sub">Attivi nel portafoglio</div></div>
+        <div class="kpi-card green"><div class="kpi-label">Fatturato medio</div><div class="kpi-value">€ 15.6K</div><div class="kpi-sub">Per cliente / anno</div></div>
+        <div class="kpi-card amber"><div class="kpi-label">Settori</div><div class="kpi-value">5</div><div class="kpi-sub">Alimentare, chimico, tessile...</div></div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-header-title">Anagrafica clienti</span>
+          <button class="btn" onclick="exportCSV()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Esporta CSV
+          </button>
+        </div>
+        <table id="clienti-table">
+          <thead>
+            <tr>
+              <th>Azienda</th><th class="hide-mobile">Settore</th><th class="hide-mobile">Referente</th><th class="hide-mobile">Città</th>
+              <th class="hide-mobile">Tel</th><th>Stato</th><th>Fatturato</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="clienti-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- INTERVENTI -->
+    <div id="page-interventi" class="page content">
+      <div class="kpi-grid" style="grid-template-columns: repeat(4,1fr); margin-bottom: 18px;">
+        <div class="kpi-card blue"><div class="kpi-label">Totale 2024</div><div class="kpi-value">38</div><div class="kpi-sub">Interventi eseguiti</div></div>
+        <div class="kpi-card green"><div class="kpi-label">Completati</div><div class="kpi-value">31</div><div class="kpi-sub">81.6% success rate</div></div>
+        <div class="kpi-card amber"><div class="kpi-label">In corso</div><div class="kpi-value">7</div><div class="kpi-sub">Da chiudere</div></div>
+        <div class="kpi-card purple"><div class="kpi-label">Ore totali</div><div class="kpi-value">284</div><div class="kpi-sub">Avg 7.5h / intervento</div></div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-header-title">Registro interventi tecnici</span>
+          <div style="display:flex;gap:8px;">
+            <select onchange="filterInterventi(this.value)" style="background:var(--navy-card);border:1px solid var(--navy-border);color:var(--text-primary);padding:5px 10px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;">
+              <option value="">Tutti gli stati</option>
+              <option value="Completato">Completati</option>
+              <option value="In corso">In corso</option>
+              <option value="Programmato">Programmati</option>
+            </select>
+          </div>
+        </div>
+        <table id="interventi-table">
+          <thead>
+            <tr>
+              <th class="hide-mobile">ID</th><th>Cliente</th><th>Tipo</th><th class="hide-mobile">Macchinario</th>
+              <th class="hide-mobile">Tecnico</th><th class="hide-mobile">Data</th><th class="hide-mobile">Ore</th><th>Costo</th><th>Stato</th><th>Priorità</th>
+            </tr>
+          </thead>
+          <tbody id="interventi-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PIPELINE -->
+    <div id="page-pipeline" class="page content">
+      <div class="kpi-grid" style="grid-template-columns: repeat(4,1fr); margin-bottom: 18px;">
+        <div class="kpi-card blue"><div class="kpi-label">Lead totali</div><div class="kpi-value">9</div><div class="kpi-sub">In pipeline attiva</div></div>
+        <div class="kpi-card green"><div class="kpi-label">Valore totale</div><div class="kpi-value">€ 94K</div><div class="kpi-sub">Opportunità aperte</div></div>
+        <div class="kpi-card amber"><div class="kpi-label">Win rate YTD</div><div class="kpi-value">62%</div><div class="kpi-sub">6 chiuse su 10 tentate</div></div>
+        <div class="kpi-card purple"><div class="kpi-label">Tempo medio</div><div class="kpi-value">21 gg</div><div class="kpi-sub">Dal lead alla firma</div></div>
+      </div>
+      <div class="pipeline-grid" id="pipeline-board"></div>
+    </div>
+
+  </div><!-- end main -->
+</div><!-- end app -->
+
+<!-- MODAL DETTAGLIO CLIENTE -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="modal-cliente-title">Dettaglio cliente</span>
+      <span class="modal-close" onclick="closeModal('modal-cliente')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </span>
+    </div>
+    <div class="modal-body" id="modal-cliente-body"></div>
+  </div>
+</div>
+
+<!-- MODAL DETTAGLIO INTERVENTO -->
+<div class="modal-overlay" id="modal-intervento">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="modal-int-title">Dettaglio intervento</span>
+      <span class="modal-close" onclick="closeModal('modal-intervento')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </span>
+    </div>
+    <div class="modal-body" id="modal-int-body"></div>
+  </div>
+</div>
+
+<script>
+// ======= DATI =======
+const clienti = [
+  { id:'C001', azienda:'Metalflex Srl', settore:'Metalmeccanico', referente:'Marco Conti', citta:'Bologna', tel:'051 4412876', email:'conti@metalflex.it', stato:'Attivo', fatturato:28400, note:'Cliente storico, contratto annuale manutenzione' },
+  { id:'C002', azienda:'Frigotec SpA', settore:'Refrigerazione', referente:'Laura Rossi', citta:'Modena', tel:'059 7723400', email:'rossi@frigotec.it', stato:'Attivo', fatturato:34200, note:'Ampia flotta compressori, priorità interventi urgenti' },
+  { id:'C003', azienda:'AlimEst Srl', settore:'Alimentare', referente:'Giovanni Merli', citta:'Ferrara', tel:'0532 881900', email:'merli@alimest.it', stato:'Attivo', fatturato:19800, note:'Linee produzione yogurt e formaggi' },
+  { id:'C004', azienda:'Chimica Nord SpA', settore:'Chimico', referente:'Sara Vitali', citta:'Ravenna', tel:'0544 620310', email:'vitali@chim-nord.it', stato:'Attivo', fatturato:41500, note:'Impianti ad alta pressione, certificati ATEX' },
+  { id:'C005', azienda:'Tessil Group Srl', settore:'Tessile', referente:'Franco Neri', citta:'Prato', tel:'0574 502100', email:'neri@tessil-group.it', stato:'Attivo', fatturato:12600, note:'Piccola realtà, interventi stagionali' },
+  { id:'C006', azienda:'LogiPack Srl', settore:'Logistica', referente:'Elena Bianchi', citta:'Bologna', tel:'051 6020440', email:'bianchi@logipack.it', stato:'Attivo', fatturato:8900, note:'Nuovo cliente da Q2 2024' },
+  { id:'C007', azienda:'AgroSud Srl', settore:'Alimentare', referente:'Carlo Esposito', citta:'Reggio Emilia', tel:'0522 430800', email:'esposito@agrosud.it', stato:'Attivo', fatturato:15200, note:'Celle frigorifere, manutenzione semestrale' },
+  { id:'C008', azienda:'PlastForm SpA', settore:'Plastica', referente:'Marta Greco', citta:'Parma', tel:'0521 772300', email:'greco@plastform.it', stato:'Sospeso', fatturato:5400, note:'Pagamento sospeso, contratto in revisione' },
+  { id:'C009', azienda:'IdroCast Srl', settore:'Metalmeccanico', referente:'Luca Fabbri', citta:'Forlì', tel:'0543 881200', email:'fabbri@idrocast.it', stato:'Attivo', fatturato:22100, note:'Impianti idraulici + aria compressa' },
+  { id:'C010', azienda:'FrigoNord Srl', settore:'Refrigerazione', referente:'Anna De Luca', citta:'Mantova', tel:'0376 540220', email:'deluca@frigonord.it', stato:'Attivo', fatturato:18700, note:'Assistenza reattiva, ottimo pagatore' },
+  { id:'C011', azienda:'EnerProd SpA', settore:'Energia', referente:'Riccardo Riva', citta:'Brescia', tel:'030 3710440', email:'riva@enerprod.it', stato:'Attivo', fatturato:31500, note:'Turbine e sistemi di raffreddamento industriale' },
+  { id:'C012', azienda:'Ceramiche Valle Srl', settore:'Ceramica', referente:'Giorgia Mori', citta:'Sassuolo', tel:'0536 881500', email:'mori@ceramv.it', stato:'Prospect', fatturato:0, note:'Prima visita maggio 2024, offerta inviata' },
+];
+
+const interventi = [
+  { id:'I001', cliente:'Metalflex Srl', tipo:'Manutenzione Ord.', macchinario:'Compressore Atlas 75kW', tecnico:'R. Ferrari', data:'2024-01-08', ore:4.5, costo:680, stato:'Completato', priorita:'Normale', note:'Cambio filtri e lubrificazione' },
+  { id:'I002', cliente:'Frigotec SpA', tipo:'Guasto urgente', macchinario:'Chiller Carrier 200kW', tecnico:'M. Antonelli', data:'2024-01-12', ore:6, costo:1150, stato:'Completato', priorita:'Urgente', note:'Sostituzione compressore scroll' },
+  { id:'I003', cliente:'AlimEst Srl', tipo:'Ispezione', macchinario:'Linea freddo celle', tecnico:'R. Ferrari', data:'2024-01-19', ore:3, costo:420, stato:'Completato', priorita:'Normale', note:'Check annuale obbligatorio F-Gas' },
+  { id:'I004', cliente:'Chimica Nord SpA', tipo:'Manutenzione Str.', macchinario:'Impianto aria compressa', tecnico:'S. Lombardi', data:'2024-01-25', ore:8, costo:1840, stato:'Completato', priorita:'Alta', note:'Intervento programmato semestrale' },
+  { id:'I005', cliente:'FrigoNord Srl', tipo:'Manutenzione Ord.', macchinario:'Evaporatori cella C', tecnico:'M. Antonelli', data:'2024-02-02', ore:3.5, costo:490, stato:'Completato', priorita:'Normale', note:'' },
+  { id:'I006', cliente:'IdroCast Srl', tipo:'Guasto urgente', macchinario:'Gruppo idraulico 45kW', tecnico:'R. Ferrari', data:'2024-02-09', ore:7, costo:1320, stato:'Completato', priorita:'Urgente', note:'Perdita olio, sostituzione tenute' },
+  { id:'I007', cliente:'EnerProd SpA', tipo:'Ispezione', macchinario:'Turbina NG-1', tecnico:'S. Lombardi', data:'2024-02-14', ore:5, costo:890, stato:'Completato', priorita:'Alta', note:'Analisi vibrazioni e termografia' },
+  { id:'I008', cliente:'Metalflex Srl', tipo:'Manutenzione Ord.', macchinario:'Compressore Atlas 75kW', tecnico:'M. Antonelli', data:'2024-02-22', ore:4, costo:620, stato:'Completato', priorita:'Normale', note:'Revisione semestrale' },
+  { id:'I009', cliente:'Frigotec SpA', tipo:'Manutenzione Str.', macchinario:'Torre evaporativa 1', tecnico:'R. Ferrari', data:'2024-03-01', ore:9, costo:2100, stato:'Completato', priorita:'Alta', note:'Pulizia fascio tubiero e bonifica' },
+  { id:'I010', cliente:'Tessil Group Srl', tipo:'Manutenzione Ord.', macchinario:'Condizionatori reparto', tecnico:'M. Antonelli', data:'2024-03-07', ore:4, costo:550, stato:'Completato', priorita:'Normale', note:'Manutenzione pre-estate' },
+  { id:'I011', cliente:'AlimEst Srl', tipo:'Guasto urgente', macchinario:'Compressore frigo celle A', tecnico:'S. Lombardi', data:'2024-03-15', ore:5.5, costo:1080, stato:'Completato', priorita:'Urgente', note:'Allarme temperatura notturno' },
+  { id:'I012', cliente:'Chimica Nord SpA', tipo:'Ispezione', macchinario:'Sistema ATEX Z1', tecnico:'R. Ferrari', data:'2024-03-20', ore:6, costo:1200, stato:'Completato', priorita:'Alta', note:'Verifica normativa annuale' },
+  { id:'I013', cliente:'AgroSud Srl', tipo:'Manutenzione Ord.', macchinario:'Cella +4°C capienza 800mq', tecnico:'M. Antonelli', data:'2024-03-28', ore:5, costo:720, stato:'Completato', priorita:'Normale', note:'' },
+  { id:'I014', cliente:'IdroCast Srl', tipo:'Manutenzione Str.', macchinario:'Impianto aria compressa', tecnico:'S. Lombardi', data:'2024-04-04', ore:8, costo:1680, stato:'Completato', priorita:'Alta', note:'Sostituzione essiccatore a membrana' },
+  { id:'I015', cliente:'LogiPack Srl', tipo:'Ispezione', macchinario:'Impianto HVAC magazzino', tecnico:'R. Ferrari', data:'2024-04-10', ore:3, costo:380, stato:'Completato', priorita:'Normale', note:'Prima visita tecnica' },
+  { id:'I016', cliente:'FrigoNord Srl', tipo:'Manutenzione Ord.', macchinario:'Chiller Trane 90kW', tecnico:'M. Antonelli', data:'2024-04-18', ore:4, costo:560, stato:'Completato', priorita:'Normale', note:'' },
+  { id:'I017', cliente:'EnerProd SpA', tipo:'Manutenzione Str.', macchinario:'Turbina NG-2', tecnico:'S. Lombardi', data:'2024-04-25', ore:10, costo:2400, stato:'Completato', priorita:'Alta', note:'Revisione completa 3 anni' },
+  { id:'I018', cliente:'Frigotec SpA', tipo:'Guasto urgente', macchinario:'Chiller York 320kW', tecnico:'R. Ferrari', data:'2024-05-03', ore:5, costo:1100, stato:'Completato', priorita:'Urgente', note:'Perdita refrigerante R410A' },
+  { id:'I019', cliente:'Metalflex Srl', tipo:'Ispezione', macchinario:'Compressore Kaeser 110kW', tecnico:'M. Antonelli', data:'2024-05-10', ore:2.5, costo:340, stato:'Completato', priorita:'Normale', note:'' },
+  { id:'I020', cliente:'AlimEst Srl', tipo:'Manutenzione Ord.', macchinario:'Banchi vendita refrigerati', tecnico:'S. Lombardi', data:'2024-05-17', ore:4, costo:540, stato:'Completato', priorita:'Normale', note:'Pulizia circuiti e ricarica gas' },
+  { id:'I021', cliente:'Chimica Nord SpA', tipo:'Guasto urgente', macchinario:'Compressore alta pressione', tecnico:'R. Ferrari', data:'2024-05-24', ore:8, costo:1960, stato:'Completato', priorita:'Urgente', note:'Fermo linea produzione, intervento h24' },
+  { id:'I022', cliente:'AgroSud Srl', tipo:'Ispezione', macchinario:'Cella -18°C surgelati', tecnico:'M. Antonelli', data:'2024-06-03', ore:3, costo:420, stato:'Completato', priorita:'Normale', note:'Verifica F-Gas semestrale' },
+  { id:'I023', cliente:'IdroCast Srl', tipo:'Manutenzione Ord.', macchinario:'Cilindri idraulici pressa 1', tecnico:'S. Lombardi', data:'2024-06-10', ore:6, costo:840, stato:'Completato', priorita:'Normale', note:'' },
+  { id:'I024', cliente:'LogiPack Srl', tipo:'Manutenzione Str.', macchinario:'UTA magazzino 2000 mq', tecnico:'R. Ferrari', data:'2024-06-17', ore:7, costo:1440, stato:'Completato', priorita:'Alta', note:'Sostituzione batterie e filtri EU9' },
+  { id:'I025', cliente:'EnerProd SpA', tipo:'Ispezione', macchinario:'Turbine NG-1/NG-2', tecnico:'S. Lombardi', data:'2024-06-25', ore:6, costo:1080, stato:'Completato', priorita:'Alta', note:'Check semestrale concordato' },
+  { id:'I026', cliente:'Frigotec SpA', tipo:'Manutenzione Ord.', macchinario:'Centrale frigorifera 600kW', tecnico:'M. Antonelli', data:'2024-07-04', ore:5, costo:780, stato:'Completato', priorita:'Normale', note:'' },
+  { id:'I027', cliente:'Metalflex Srl', tipo:'Guasto urgente', macchinario:'Essiccatore frigorifero', tecnico:'R. Ferrari', data:'2024-07-12', ore:3, costo:680, stato:'Completato', priorita:'Urgente', note:'Blocco produzione turno pomeriggio' },
+  { id:'I028', cliente:'AlimEst Srl', tipo:'Manutenzione Str.', macchinario:'Tunnel surgelazione', tecnico:'S. Lombardi', data:'2024-07-22', ore:9, costo:2200, stato:'Completato', priorita:'Alta', note:'Revisione completa estiva' },
+  { id:'I029', cliente:'FrigoNord Srl', tipo:'Ispezione', macchinario:'Impianto gas R134a', tecnico:'M. Antonelli', data:'2024-08-01', ore:2.5, costo:330, stato:'Completato', priorita:'Normale', note:'Verifica tenuta circuiti' },
+  { id:'I030', cliente:'Chimica Nord SpA', tipo:'Manutenzione Str.', macchinario:'Impianto criogeno', tecnico:'R. Ferrari', data:'2024-08-09', ore:10, costo:2800, stato:'Completato', priorita:'Alta', note:'Manutenzione straordinaria annuale' },
+  { id:'I031', cliente:'AgroSud Srl', tipo:'Guasto urgente', macchinario:'Cella +4°C capienza 800mq', tecnico:'S. Lombardi', data:'2024-08-20', ore:4, costo:880, stato:'Completato', priorita:'Urgente', note:'Allarme temperatura +10°C, perdita gas' },
+  { id:'I032', cliente:'IdroCast Srl', tipo:'Ispezione', macchinario:'Filtri linea principale', tecnico:'M. Antonelli', data:'2024-09-05', ore:2, costo:260, stato:'Completato', priorita:'Normale', note:'' },
+  { id:'I033', cliente:'EnerProd SpA', tipo:'Guasto urgente', macchinario:'Turbina NG-1 — cuscinetto', tecnico:'R. Ferrari', data:'2024-09-13', ore:12, costo:3100, stato:'Completato', priorita:'Urgente', note:'Vibrazione anomala, sostituzione cuscinetto radiale' },
+  { id:'I034', cliente:'Frigotec SpA', tipo:'Manutenzione Ord.', macchinario:'Chiller Carrier 200kW', tecnico:'S. Lombardi', data:'2024-10-01', ore:4.5, costo:690, stato:'In corso', priorita:'Normale', note:'Revisione autunnale' },
+  { id:'I035', cliente:'Metalflex Srl', tipo:'Manutenzione Str.', macchinario:'Compressore Atlas 75kW', tecnico:'M. Antonelli', data:'2024-10-10', ore:8, costo:1620, stato:'In corso', priorita:'Alta', note:'Revisione 5 anni — in lavorazione' },
+  { id:'I036', cliente:'Chimica Nord SpA', tipo:'Ispezione', macchinario:'Impianto ATEX zona 2', tecnico:'R. Ferrari', data:'2024-10-18', ore:5, costo:950, stato:'In corso', priorita:'Alta', note:'' },
+  { id:'I037', cliente:'AlimEst Srl', tipo:'Manutenzione Ord.', macchinario:'Celle frigo reparto B', tecnico:'S. Lombardi', data:'2024-10-25', ore:4, costo:580, stato:'Programmato', priorita:'Normale', note:'Prenotato dal cliente' },
+  { id:'I038', cliente:'LogiPack Srl', tipo:'Guasto urgente', macchinario:'Split zone spedizioni', tecnico:'M. Antonelli', data:'2024-10-28', ore:3, costo:490, stato:'Programmato', priorita:'Urgente', note:'Guasto segnalato lunedì, intervento venerdì' },
+];
+
+const pipeline = [
+  { id:'P001', azienda:'Ceramiche Valle Srl', desc:'Contratto manutenzione impianti', fase:'Lead', valore:18000, prob:20 },
+  { id:'P002', azienda:'PlastForm SpA', desc:'Revisione impianto aria compressa', fase:'Qualifica', valore:8500, prob:40 },
+  { id:'P003', azienda:'Nuovo cliente TBD', desc:'Manutenzione chiller 3 siti', fase:'Lead', valore:24000, prob:15 },
+  { id:'P004', azienda:'Frigotec SpA', desc:'Upgrading centrale frigorifera', fase:'Offerta', valore:31000, prob:65 },
+  { id:'P005', azienda:'EnerProd SpA', desc:'Contratto full-service 2025', fase:'Offerta', valore:45000, prob:70 },
+  { id:'P006', azienda:'IdroCast Srl', desc:'Fornitura essiccatori nuovi', fase:'Qualifica', valore:12000, prob:45 },
+  { id:'P007', azienda:'LogiPack Srl', desc:'Contratto annuale HVAC', fase:'Negoziazione', valore:14000, prob:80 },
+  { id:'P008', azienda:'AgroSud Srl', desc:'Ampliamento celle frigorifere', fase:'Negoziazione', valore:9500, prob:85 },
+  { id:'P009', azienda:'Chimica Nord SpA', desc:'Rinnovo contratto 2025 + add-on', fase:'Offerta', valore:38000, prob:60 },
+];
+
+const fasi = ['Lead','Qualifica','Offerta','Negoziazione'];
+const faseColors = { Lead:'#2ca1fe', Qualifica:'#a78bfa', Offerta:'#f59e0b', Negoziazione:'#22c55e' };
+
+// ======= NAVIGAZIONE =======
+let currentPage = 'dashboard';
+function showPage(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  el.classList.add('active');
+  currentPage = page;
+  document.getElementById('page-title').textContent = el.textContent.trim();
+  document.getElementById('search-input').value = '';
+}
+
+// ======= CLIENTI =======
+function avatarInitials(name) {
+  return name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+}
+const avColors = ['av-blue','av-green','av-purple','av-amber','av-red'];
+function avColor(i){ return avColors[i%avColors.length]; }
+
+function statoClienteBadge(s) {
+  if(s==='Attivo') return `<span class="badge badge-green"><span class="dot"></span>${s}</span>`;
+  if(s==='Sospeso') return `<span class="badge badge-amber"><span class="dot"></span>${s}</span>`;
+  return `<span class="badge badge-gray"><span class="dot"></span>${s}</span>`;
+}
+
+function renderClienti(data) {
+  const tbody = document.getElementById('clienti-tbody');
+  tbody.innerHTML = data.map((c,i)=>`
+    <tr style="cursor:pointer" onclick="openCliente('${c.id}')">
+      <td>
+        <div class="client-cell">
+          <div class="avatar ${avColor(i)}">${avatarInitials(c.azienda)}</div>
+          <div><div class="name">${c.azienda}</div><div class="sub">${c.id}</div></div>
+        </div>
+      </td>
+      <td class="hide-mobile"><span class="badge badge-blue">${c.settore}</span></td>
+      <td class="hide-mobile">${c.referente}</td>
+      <td class="td-muted hide-mobile">${c.citta}</td>
+      <td class="td-muted td-mono hide-mobile" style="font-size:11px">${c.tel}</td>
+      <td>${statoClienteBadge(c.stato)}</td>
+      <td class="td-mono" style="color:var(--green)">€ ${c.fatturato.toLocaleString('it-IT')}</td>
+      <td style="color:var(--text-muted)">→</td>
+    </tr>
+  `).join('');
+}
+renderClienti(clienti);
+
+function openCliente(id) {
+  const c = clienti.find(x=>x.id===id);
+  const intv = interventi.filter(x=>x.cliente===c.azienda).slice(-4).reverse();
+  document.getElementById('modal-cliente-title').textContent = c.azienda;
+  document.getElementById('modal-cliente-body').innerHTML = `
+    <div class="detail-section">
+      <div class="detail-label">Anagrafica</div>
+      <div class="detail-grid">
+        <div class="detail-field"><label>Codice</label><span class="mono">${c.id}</span></div>
+        <div class="detail-field"><label>Settore</label><span>${c.settore}</span></div>
+        <div class="detail-field"><label>Referente</label><span>${c.referente}</span></div>
+        <div class="detail-field"><label>Città</label><span>${c.citta}</span></div>
+        <div class="detail-field"><label>Telefono</label><span class="mono">${c.tel}</span></div>
+        <div class="detail-field"><label>Email</label><span style="color:var(--accent)">${c.email}</span></div>
+        <div class="detail-field"><label>Stato</label>${statoClienteBadge(c.stato)}</div>
+        <div class="detail-field"><label>Fatturato YTD</label><span class="mono" style="color:var(--green)">€ ${c.fatturato.toLocaleString('it-IT')}</span></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">Note</div>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.6">${c.note||'—'}</p>
+    </div>
+    ${intv.length>0?`<div class="detail-section">
+      <div class="detail-label">Ultimi interventi</div>
+      <div class="interventi-mini">
+        ${intv.map(v=>`<div class="intervento-mini">
+          <span class="im-date">${v.data}</span>
+          <span class="im-desc">${v.tipo} — ${v.macchinario}</span>
+          <span class="im-cost">€ ${v.costo.toLocaleString('it-IT')}</span>
+          ${statoInt(v.stato)}
+        </div>`).join('')}
+      </div>
+    </div>`:''}
+  `;
+  document.getElementById('modal-cliente').classList.add('open');
+}
+
+// ======= INTERVENTI =======
+function statoInt(s) {
+  if(s==='Completato') return `<span class="badge badge-green">${s}</span>`;
+  if(s==='In corso') return `<span class="badge badge-blue">${s}</span>`;
+  return `<span class="badge badge-amber">${s}</span>`;
+}
+function prioritaBadge(p) {
+  if(p==='Urgente') return `<span class="badge badge-red">${p}</span>`;
+  if(p==='Alta') return `<span class="badge badge-amber">${p}</span>`;
+  return `<span class="badge badge-gray">${p}</span>`;
+}
+
+let filteredInterventi = interventi;
+function filterInterventi(stato) {
+  filteredInterventi = stato ? interventi.filter(x=>x.stato===stato) : interventi;
+  renderInterventi(filteredInterventi);
+}
+
+function renderInterventi(data) {
+  const tbody = document.getElementById('interventi-tbody');
+  tbody.innerHTML = data.map(v=>`
+    <tr style="cursor:pointer" onclick="openIntervento('${v.id}')">
+      <td class="td-mono hide-mobile" style="color:var(--text-muted);font-size:11px">${v.id}</td>
+      <td style="font-weight:500">${v.cliente}</td>
+      <td><span class="badge badge-purple">${v.tipo}</span></td>
+      <td class="td-muted hide-mobile" style="font-size:12px">${v.macchinario}</td>
+      <td class="hide-mobile">${v.tecnico}</td>
+      <td class="td-mono td-muted hide-mobile" style="font-size:11px">${v.data}</td>
+      <td class="td-mono hide-mobile" style="text-align:right">${v.ore}h</td>
+      <td class="td-mono" style="color:var(--green)">€ ${v.costo.toLocaleString('it-IT')}</td>
+      <td>${statoInt(v.stato)}</td>
+      <td>${prioritaBadge(v.priorita)}</td>
+    </tr>
+  `).join('');
+}
+renderInterventi(interventi);
+
+function openIntervento(id) {
+  const v = interventi.find(x=>x.id===id);
+  document.getElementById('modal-int-title').textContent = `${v.id} — ${v.tipo}`;
+  document.getElementById('modal-int-body').innerHTML = `
+    <div class="detail-section">
+      <div class="detail-grid">
+        <div class="detail-field"><label>ID</label><span class="mono">${v.id}</span></div>
+        <div class="detail-field"><label>Cliente</label><span>${v.cliente}</span></div>
+        <div class="detail-field"><label>Tipo intervento</label><span>${v.tipo}</span></div>
+        <div class="detail-field"><label>Macchinario</label><span>${v.macchinario}</span></div>
+        <div class="detail-field"><label>Tecnico</label><span>${v.tecnico}</span></div>
+        <div class="detail-field"><label>Data</label><span class="mono">${v.data}</span></div>
+        <div class="detail-field"><label>Ore lavorate</label><span class="mono">${v.ore}h</span></div>
+        <div class="detail-field"><label>Costo</label><span class="mono" style="color:var(--green)">€ ${v.costo.toLocaleString('it-IT')}</span></div>
+        <div class="detail-field"><label>Stato</label>${statoInt(v.stato)}</div>
+        <div class="detail-field"><label>Priorità</label>${prioritaBadge(v.priorita)}</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">Note tecniche</div>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.6">${v.note||'—'}</p>
+    </div>
+  `;
+  document.getElementById('modal-intervento').classList.add('open');
+}
+
+// ======= PIPELINE =======
+function renderPipeline() {
+  const board = document.getElementById('pipeline-board');
+  board.innerHTML = fasi.map(fase=>{
+    const cards = pipeline.filter(p=>p.fase===fase);
+    const tot = cards.reduce((a,b)=>a+b.valore,0);
+    return `
+    <div class="pipeline-col">
+      <div class="pipeline-col-header" style="border-top:2px solid ${faseColors[fase]}">
+        <span>${fase}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted)">€ ${(tot/1000).toFixed(0)}K</span>
+      </div>
+      ${cards.map(p=>`
+        <div class="pipeline-card">
+          <div class="pc-company">${p.azienda}</div>
+          <div class="pc-desc">${p.desc}</div>
+          <div class="prob-bar"><div class="prob-fill" style="width:${p.prob}%"></div></div>
+          <div class="pc-footer" style="margin-top:8px">
+            <span class="pc-value">€ ${p.valore.toLocaleString('it-IT')}</span>
+            <span class="pc-prob">${p.prob}% prob.</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+  }).join('');
+}
+renderPipeline();
+
+// ======= DASHBOARD CHARTS =======
+function renderDashboard() {
+  // Bar chart tecnici
+  const tecnici = {};
+  interventi.forEach(v=>{ tecnici[v.tecnico]=(tecnici[v.tecnico]||0)+1; });
+  const tecMax = Math.max(...Object.values(tecnici));
+  const colors = ['#2ca1fe','#a78bfa','#22c55e','#f59e0b'];
+  document.getElementById('tecnico-chart').innerHTML = Object.entries(tecnici).map(([t,n],i)=>`
+    <div class="bar-row">
+      <span class="bar-label">${t}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/tecMax*100)}%;background:${colors[i%4]}"></div></div>
+      <span class="bar-val">${n} int.</span>
+    </div>
+  `).join('');
+
+  // Funnel pipeline
+  const faseCount = {};
+  pipeline.forEach(p=>{ faseCount[p.fase]=(faseCount[p.fase]||0)+1; });
+  const fMax = Math.max(...Object.values(faseCount));
+  document.getElementById('funnel-chart').innerHTML = fasi.map(f=>`
+    <div class="funnel-row">
+      <span class="funnel-label">${f}</span>
+      <div style="flex:1;min-width:0;">
+        <div class="funnel-bar" style="width:${Math.round((faseCount[f]||0)/fMax*100)}%;background:${faseColors[f]};min-width:30px">
+          ${faseCount[f]||0}
+        </div>
+      </div>
+      <span class="funnel-count">€${Math.round(pipeline.filter(p=>p.fase===f).reduce((a,b)=>a+b.valore,0)/1000)}K</span>
+    </div>
+  `).join('');
+
+  // Bar chart settori
+  const settori = {};
+  clienti.forEach(c=>{ settori[c.settore]=(settori[c.settore]||0)+c.fatturato; });
+  const setMax = Math.max(...Object.values(settori));
+  document.getElementById('settore-chart').innerHTML = Object.entries(settori).sort((a,b)=>b[1]-a[1]).map(([s,v],i)=>`
+    <div class="bar-row">
+      <span class="bar-label" style="font-size:11px">${s}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/setMax*100)}%;background:${colors[i%4]}"></div></div>
+      <span class="bar-val">€${Math.round(v/1000)}K</span>
+    </div>
+  `).join('');
+
+  // Activity
+  const activities = [
+    { text:'Nuovo intervento urgente per <b>LogiPack Srl</b> — Split zone spedizioni', time:'Oggi · 09:15', color:'var(--red)' },
+    { text:'Offerta inviata a <b>EnerProd SpA</b> per contratto full-service 2025', time:'Ieri · 14:30', color:'var(--amber)' },
+    { text:'Intervento completato: <b>Frigotec SpA</b> — Torre evaporativa 1', time:'28 ott · 11:00', color:'var(--green)' },
+    { text:'Nuova opportunità aperta: <b>Chimica Nord SpA</b> rinnovo contratto', time:'25 ott · 16:45', color:'var(--accent)' },
+    { text:'Cliente <b>Ceramiche Valle Srl</b> entrato in pipeline come Lead', time:'20 ott · 10:00', color:'var(--purple)' },
+  ];
+  document.getElementById('activity-list').innerHTML = activities.map(a=>`
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${a.color}"></div>
+      <div>
+        <div class="activity-text">${a.text}</div>
+        <div class="activity-time">${a.time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+renderDashboard();
+
+// ======= SEARCH =======
+function handleSearch(q) {
+  q = q.toLowerCase();
+  if(currentPage==='clienti') {
+    renderClienti(q ? clienti.filter(c=>c.azienda.toLowerCase().includes(q)||c.referente.toLowerCase().includes(q)||c.settore.toLowerCase().includes(q)||c.citta.toLowerCase().includes(q)) : clienti);
+  } else if(currentPage==='interventi') {
+    renderInterventi(q ? interventi.filter(v=>v.cliente.toLowerCase().includes(q)||v.tipo.toLowerCase().includes(q)||v.macchinario.toLowerCase().includes(q)||v.tecnico.toLowerCase().includes(q)) : interventi);
+  }
+}
+
+// ======= MODALI =======
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); });
+});
+
+function openAddModal() {
+  alert('Demo applicativo — le funzioni di inserimento non sono attive in questa versione dimostrativa.');
+}
+
+// ======= EXPORT CSV =======
+function exportCSV() {
+  const rows = [['ID','Azienda','Settore','Referente','Città','Tel','Email','Stato','Fatturato']];
+  clienti.forEach(c=>rows.push([c.id,c.azienda,c.settore,c.referente,c.citta,c.tel,c.email,c.stato,c.fatturato]));
+  const csv = rows.map(r=>r.join(';')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'clienti_crm.csv';
+  a.click();
+}
+</script>
+<a href="https://alessandrodardi-1982.github.io/portfolio/" id="btn-portfolio" style="position:fixed;bottom:90px;left:20px;z-index:9999;display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:rgba(0,20,45,0.90);border:1px solid rgba(46,155,236,0.4);border-radius:8px;color:#cddff0;text-decoration:none;font-family:'Hanken Grotesk','DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.01em;backdrop-filter:blur(10px);box-shadow:0 4px 16px rgba(0,0,0,0.45);transition:all 0.2s ease;" onmouseover="this.style.borderColor='rgba(46,155,236,0.85)';this.style.color='#fff';this.style.background='rgba(0,35,70,0.96)'" onmouseout="this.style.borderColor='rgba(46,155,236,0.4)';this.style.color='#cddff0';this.style.background='rgba(0,20,45,0.90)'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Portfolio</a>
+</body>
+</html>

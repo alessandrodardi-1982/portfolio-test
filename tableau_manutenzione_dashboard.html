@@ -1,0 +1,258 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; }
+  .tb-shell { background: #f0f0f0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #333; }
+  .tb-header { background: #1f3864; color: #fff; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .tb-header-title { font-size: 15px; font-weight: 600; letter-spacing: 0.3px; }
+  .tb-header-sub { font-size: 11px; color: #c8d8f0; }
+  .tb-toolbar { background: #e8e8e8; border-bottom: 1px solid #c0c0c0; padding: 4px 10px; display: flex; align-items: center; gap: 16px; }
+  .tb-filter-label { font-size: 11px; color: #555; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tb-filter-btn { background: #fff; border: 1px solid #b0b0b0; border-radius: 2px; padding: 3px 10px; font-size: 11px; color: #333; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+  .tb-filter-btn:hover { background: #f5f5f5; }
+  .tb-filter-active { background: #dbeafe; border-color: #4472c4; color: #1f3864; }
+  .tb-canvas { padding: 10px; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: auto auto auto; gap: 8px; }
+  .tb-kpi-row { grid-column: 1/-1; display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; }
+  .tb-kpi { background: #fff; border: 1px solid #d0d0d0; padding: 10px 14px 8px; }
+  .tb-kpi-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 3px; }
+  .tb-kpi-val { font-size: 22px; font-weight: 700; color: #1f3864; line-height: 1; }
+  .tb-kpi-delta { font-size: 10px; margin-top: 3px; display: flex; align-items: center; gap: 2px; }
+  .delta-up { color: #4ca750; }
+  .delta-down { color: #e04040; }
+  .tb-card { background: #fff; border: 1px solid #d0d0d0; padding: 8px 10px; }
+  .tb-card-title { font-size: 11px; font-weight: 700; color: #333; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #4472c4; padding-bottom: 5px; margin-bottom: 8px; }
+  .tb-card-full { grid-column: 1/-1; }
+  .tb-card-half { grid-column: span 2; }
+  .tb-card-third { grid-column: span 1; }
+  .tab-row { display: flex; gap: 0; margin-bottom: 8px; }
+  .tab-btn { font-size: 11px; padding: 3px 10px; border: 1px solid #c0c0c0; background: #f0f0f0; color: #555; cursor: pointer; border-right: none; }
+  .tab-btn:last-child { border-right: 1px solid #c0c0c0; }
+  .tab-btn.active { background: #fff; color: #1f3864; font-weight: 600; border-bottom: 2px solid #4472c4; }
+  .tb-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .tb-table th { background: #f0f0f0; border: 1px solid #d0d0d0; padding: 4px 8px; text-align: left; color: #555; font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.4px; }
+  .tb-table td { border: 1px solid #e8e8e8; padding: 4px 8px; color: #333; }
+  .tb-table tr:hover td { background: #f5f8ff; }
+  .pill { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+  .pill-red { background: #fde8e8; color: #b91c1c; }
+  .pill-amber { background: #fef3cd; color: #92400e; }
+  .pill-green { background: #d1fae5; color: #065f46; }
+  .pill-blue { background: #dbeafe; color: #1e40af; }
+  .pill-gray { background: #f0f0f0; color: #555; }
+  .gantt-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; font-size: 10px; }
+  .gantt-label { width: 90px; text-align: right; color: #555; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .gantt-track { flex: 1; background: #e8e8e8; height: 14px; position: relative; }
+  .gantt-bar { position: absolute; height: 100%; top: 0; }
+  .gantt-val { width: 30px; color: #666; font-size: 10px; }
+  .sparkline-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 11px; }
+  .sparkline-label { width: 80px; color: #555; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .sparkline-track { flex: 1; background: #e8e8e8; height: 10px; }
+  .sparkline-fill { height: 100%; }
+  .sparkline-val { width: 40px; text-align: right; color: #333; font-weight: 600; font-size: 11px; }
+  .tb-footer { background: #e8e8e8; border-top: 1px solid #c0c0c0; padding: 4px 14px; font-size: 10px; color: #888; display: flex; justify-content: space-between; }
+  .legend-row { display: flex; gap: 12px; font-size: 10px; color: #555; margin-bottom: 8px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .legend-sq { width: 10px; height: 10px; border-radius: 1px; }
+</style>
+
+<div class="tb-shell">
+  <div class="tb-header">
+    <div>
+      <div class="tb-header-title">Maintenance Operations Dashboard</div>
+      <div class="tb-header-sub">Impianti Industriali — Area Nord Italia &nbsp;|&nbsp; Periodo: Gen–Giu 2026</div>
+    </div>
+    <div style="font-size:10px; color:#c8d8f0; text-align:right;">
+      Aggiornato: 06/06/2026<br>Fonte: CRM Manutenzione
+    </div>
+  </div>
+
+  <div class="tb-toolbar">
+    <span class="tb-filter-label">Filtri:</span>
+    <span class="tb-filter-btn tb-filter-active">▾ Area: Nord Italia</span>
+    <span class="tb-filter-btn">▾ Periodo: H1 2026</span>
+    <span class="tb-filter-btn">▾ Macchinario: Tutti</span>
+    <span class="tb-filter-btn">▾ Tecnico: Tutti</span>
+    <span style="margin-left:auto; font-size:10px; color:#777;">● Live &nbsp;|&nbsp; ↗ Export</span>
+  </div>
+
+  <div class="tb-canvas">
+
+    <!-- KPI ROW -->
+    <div class="tb-kpi-row">
+      <div class="tb-kpi">
+        <div class="tb-kpi-label">Interventi totali</div>
+        <div class="tb-kpi-val">238</div>
+        <div class="tb-kpi-delta delta-up">▲ +12% vs H1 2025</div>
+      </div>
+      <div class="tb-kpi">
+        <div class="tb-kpi-label">Costo totale</div>
+        <div class="tb-kpi-val">€ 184k</div>
+        <div class="tb-kpi-delta delta-down">▼ +8% budget</div>
+      </div>
+      <div class="tb-kpi">
+        <div class="tb-kpi-label">MTTR medio</div>
+        <div class="tb-kpi-val">4.2h</div>
+        <div class="tb-kpi-delta delta-up">▲ migliorato 0.6h</div>
+      </div>
+      <div class="tb-kpi">
+        <div class="tb-kpi-label">Tasso risoluzione</div>
+        <div class="tb-kpi-val">91%</div>
+        <div class="tb-kpi-delta delta-up">▲ +3pp vs target</div>
+      </div>
+      <div class="tb-kpi">
+        <div class="tb-kpi-label">Interventi aperti</div>
+        <div class="tb-kpi-val" style="color:#c0392b;">21</div>
+        <div class="tb-kpi-delta delta-down">▼ 9 critici</div>
+      </div>
+    </div>
+
+    <!-- CHART: Interventi per mese -->
+    <div class="tb-card tb-card-half">
+      <div class="tb-card-title">Interventi per mese e tipo</div>
+      <div class="legend-row">
+        <div class="legend-item"><div class="legend-sq" style="background:#4472c4;"></div>Preventiva</div>
+        <div class="legend-item"><div class="legend-sq" style="background:#ed7d31;"></div>Correttiva</div>
+        <div class="legend-item"><div class="legend-sq" style="background:#a9d18e;"></div>Emergenza</div>
+      </div>
+      <div style="position:relative; width:100%; height:180px;">
+        <canvas id="chartMesi" role="img" aria-label="Interventi mensili per tipo Gen-Giu 2026"></canvas>
+      </div>
+    </div>
+
+    <!-- CHART: Costo per macchinario -->
+    <div class="tb-card tb-card-third">
+      <div class="tb-card-title">Costo per categoria impianto</div>
+      <div style="position:relative; width:100%; height:200px;">
+        <canvas id="chartImpianti" role="img" aria-label="Costo interventi per categoria impianto"></canvas>
+      </div>
+    </div>
+
+    <!-- GANTT: Tecnici -->
+    <div class="tb-card tb-card-third">
+      <div class="tb-card-title">Carico tecnici (ore H1)</div>
+      <div style="margin-top:4px;">
+        <div class="gantt-row"><div class="gantt-label">Rossi M.</div><div class="gantt-track"><div class="gantt-bar" style="left:0;width:88%;background:#4472c4;"></div></div><div class="gantt-val">352h</div></div>
+        <div class="gantt-row"><div class="gantt-label">Ferri L.</div><div class="gantt-track"><div class="gantt-bar" style="left:0;width:76%;background:#4472c4;"></div></div><div class="gantt-val">305h</div></div>
+        <div class="gantt-row"><div class="gantt-label">Bianchi G.</div><div class="gantt-track"><div class="gantt-bar" style="left:0;width:95%;background:#c0392b;"></div></div><div class="gantt-val">381h ⚠</div></div>
+        <div class="gantt-row"><div class="gantt-label">Neri A.</div><div class="gantt-track"><div class="gantt-bar" style="left:0;width:61%;background:#4472c4;"></div></div><div class="gantt-val">244h</div></div>
+        <div class="gantt-row"><div class="gantt-label">Conti S.</div><div class="gantt-track"><div class="gantt-bar" style="left:0;width:83%;background:#4472c4;"></div></div><div class="gantt-val">331h</div></div>
+        <div class="gantt-row"><div class="gantt-label">Marini P.</div><div class="gantt-track"><div class="gantt-bar" style="left:0;width:54%;background:#70ad47;"></div></div><div class="gantt-val">218h</div></div>
+        <div class="gantt-row"><div class="gantt-label">Greco F.</div><div class="gantt-track"><div class="gantt-bar" style="left:0;width:72%;background:#4472c4;"></div></div><div class="gantt-val">287h</div></div>
+      </div>
+      <div style="margin-top:6px; font-size:10px; color:#888;">Soglia OT: 400h &nbsp;|&nbsp; ⚠ = overload risk</div>
+    </div>
+
+    <!-- SPARKLINES: Aziende per costo -->
+    <div class="tb-card tb-card-third">
+      <div class="tb-card-title">Top clienti per costo</div>
+      <div style="margin-top:4px;">
+        <div class="sparkline-row"><div class="sparkline-label">Acciaierie Po</div><div class="sparkline-track"><div class="sparkline-fill" style="width:100%;background:#4472c4;"></div></div><div class="sparkline-val">€ 31.4k</div></div>
+        <div class="sparkline-row"><div class="sparkline-label">FrigorMec Srl</div><div class="sparkline-track"><div class="sparkline-fill" style="width:81%;background:#4472c4;"></div></div><div class="sparkline-val">€ 25.5k</div></div>
+        <div class="sparkline-row"><div class="sparkline-label">Carnevali Ind.</div><div class="sparkline-track"><div class="sparkline-fill" style="width:70%;background:#4472c4;"></div></div><div class="sparkline-val">€ 21.9k</div></div>
+        <div class="sparkline-row"><div class="sparkline-label">Termovapor</div><div class="sparkline-track"><div class="sparkline-fill" style="width:58%;background:#70ad47;"></div></div><div class="sparkline-val">€ 18.2k</div></div>
+        <div class="sparkline-row"><div class="sparkline-label">Idropres Srl</div><div class="sparkline-track"><div class="sparkline-fill" style="width:49%;background:#70ad47;"></div></div><div class="sparkline-val">€ 15.4k</div></div>
+        <div class="sparkline-row"><div class="sparkline-label">MeccaPadova</div><div class="sparkline-track"><div class="sparkline-fill" style="width:40%;background:#ed7d31;"></div></div><div class="sparkline-val">€ 12.7k</div></div>
+        <div class="sparkline-row"><div class="sparkline-label">Alpi Compress.</div><div class="sparkline-track"><div class="sparkline-fill" style="width:33%;background:#ed7d31;"></div></div><div class="sparkline-val">€ 10.3k</div></div>
+      </div>
+    </div>
+
+    <!-- TABLE: Interventi critici -->
+    <div class="tb-card tb-card-half">
+      <div class="tb-card-title">Interventi critici aperti</div>
+      <div class="tab-row">
+        <button class="tab-btn active">Priorità Alta</button>
+        <button class="tab-btn">In Ritardo</button>
+        <button class="tab-btn">Scaduti</button>
+      </div>
+      <table class="tb-table">
+        <thead>
+          <tr>
+            <th>ID</th><th>Azienda</th><th>Macchinario</th><th>Tecnico</th><th>Stato</th><th>Scadenza</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>#1042</td><td>Acciaierie Po</td><td>Compressore 45kW</td><td>Bianchi G.</td><td><span class="pill pill-red">Aperto</span></td><td style="color:#c0392b;">02/06</td></tr>
+          <tr><td>#1038</td><td>FrigorMec Srl</td><td>Gruppo frigo</td><td>Rossi M.</td><td><span class="pill pill-amber">In corso</span></td><td>08/06</td></tr>
+          <tr><td>#1035</td><td>Termovapor</td><td>Caldaia ind.</td><td>Ferri L.</td><td><span class="pill pill-red">Aperto</span></td><td style="color:#c0392b;">30/05</td></tr>
+          <tr><td>#1031</td><td>Carnevali Ind.</td><td>Centrale aria compr.</td><td>Conti S.</td><td><span class="pill pill-amber">In corso</span></td><td>10/06</td></tr>
+          <tr><td>#1027</td><td>Idropres Srl</td><td>Pompa centrifuga</td><td>Neri A.</td><td><span class="pill pill-green">Chiuso</span></td><td>05/06</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CHART: MTTR per macchinario -->
+    <div class="tb-card tb-card-third">
+      <div class="tb-card-title">MTTR per tipo macchinario (h)</div>
+      <div style="position:relative; width:100%; height:160px;">
+        <canvas id="chartMTTR" role="img" aria-label="MTTR medio per tipo di macchinario in ore"></canvas>
+      </div>
+      <div style="margin-top:6px; font-size:10px; color:#888;">Target SLA: ≤ 5h</div>
+    </div>
+
+  </div>
+
+  <div class="tb-footer">
+    <span>Tableau Desktop 2024.1 &nbsp;|&nbsp; Workbook: <em>Manutenzione_Nord_H1_2026.twbx</em></span>
+    <span>© Operations Analytics — A. Dardi &nbsp;|&nbsp; Dati dimostrativi</span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const tbColors = { blue:'#4472c4', orange:'#ed7d31', green:'#70ad47', red:'#c0392b', gray:'#a0a0a0', teal:'#5b9bd5' };
+
+new Chart(document.getElementById('chartMesi'), {
+  type: 'bar',
+  data: {
+    labels: ['Gen','Feb','Mar','Apr','Mag','Giu'],
+    datasets: [
+      { label:'Preventiva', data:[18,21,24,19,22,20], backgroundColor:'#4472c4', borderWidth:0 },
+      { label:'Correttiva', data:[12,10,14,11,13,9],  backgroundColor:'#ed7d31', borderWidth:0 },
+      { label:'Emergenza',  data:[3,5,2,4,6,3],        backgroundColor:'#a9d18e', borderWidth:0 }
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:false } },
+    scales:{
+      x:{ stacked:true, ticks:{ font:{size:10}, color:'#555' }, grid:{ display:false } },
+      y:{ stacked:true, ticks:{ font:{size:10}, color:'#555', stepSize:10 }, grid:{ color:'#e8e8e8' } }
+    }
+  }
+});
+
+new Chart(document.getElementById('chartImpianti'), {
+  type: 'doughnut',
+  data: {
+    labels:['Aria compressa','Refrigerazione','Caldaie','Idraulica','Elettrico'],
+    datasets:[{ data:[34,26,18,14,8], backgroundColor:['#4472c4','#ed7d31','#70ad47','#5b9bd5','#a0a0a0'], borderWidth:1, borderColor:'#fff' }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false, cutout:'58%',
+    plugins:{
+      legend:{ position:'bottom', labels:{ font:{size:10}, padding:6, boxWidth:10 } }
+    }
+  }
+});
+
+new Chart(document.getElementById('chartMTTR'), {
+  type:'bar',
+  data:{
+    labels:['Aria compr.','Frigo','Caldaia','Idraulica','Elettrico'],
+    datasets:[{
+      label:'MTTR (h)',
+      data:[3.8, 5.6, 6.1, 3.2, 2.9],
+      backgroundColor:['#4472c4','#c0392b','#c0392b','#4472c4','#70ad47'],
+      borderWidth:0
+    }]
+  },
+  options:{
+    indexAxis:'y',
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:false } },
+    scales:{
+      x:{ ticks:{ font:{size:10}, color:'#555' }, grid:{ color:'#e8e8e8' }, max:8 },
+      y:{ ticks:{ font:{size:10}, color:'#555' }, grid:{ display:false } }
+    }
+  }
+});
+</script>

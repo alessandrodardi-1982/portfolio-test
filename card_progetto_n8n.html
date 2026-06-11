@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Settimanale Automatico — Alessandro Dardi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;1,300&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy-950: #080d1a;
+      --navy-900: #0d1529;
+      --navy-800: #111936;
+      --navy-700: #162040;
+      --navy-600: #1e50a0;
+      --blue-500: #2563b8;
+      --blue-400: #3b82f6;
+      --accent: #2ca1fe;
+      --accent-dim: rgba(44,161,254,0.15);
+      --text-primary: #f0f4ff;
+      --text-secondary: #8ea4c8;
+      --text-muted: #4a6080;
+      --border: rgba(44,161,254,0.12);
+      --card-bg: rgba(13,21,41,0.7);
+    }
+
+    body {
+      background: var(--navy-950);
+      color: var(--text-primary);
+      font-family: 'Hanken Grotesk', sans-serif;
+      min-height: 100vh;
+      padding: 60px 24px;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 20% 10%, rgba(44,161,254,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(30,80,160,0.08) 0%, transparent 60%);
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* BREADCRUMB */
+    .breadcrumb {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 48px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .breadcrumb span { color: var(--accent); }
+
+    /* HEADER */
+    .project-header {
+      margin-bottom: 48px;
+    }
+
+    .project-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(44,161,254,0.25);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .project-tag::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    h1 {
+      font-family: 'Fraunces', serif;
+      font-weight: 300;
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.1;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .project-subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+      font-weight: 300;
+      line-height: 1.6;
+      max-width: 600px;
+    }
+
+    /* STACK PILLS */
+    .stack-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 28px;
+    }
+    .pill {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* DIVIDER */
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, var(--accent-dim), transparent);
+      margin: 40px 0;
+    }
+
+    /* FLUSSO */
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 40px;
+    }
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .flow-node {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 13px;
+      color: var(--text-primary);
+      white-space: nowrap;
+      position: relative;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .flow-node:hover {
+      border-color: rgba(44,161,254,0.4);
+      background: rgba(44,161,254,0.06);
+    }
+    .flow-node .node-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--accent);
+      display: block;
+      margin-bottom: 2px;
+      letter-spacing: 0.04em;
+    }
+    .flow-arrow {
+      color: var(--text-muted);
+      padding: 0 6px;
+      font-size: 14px;
+    }
+
+    /* CARDS KPI */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      backdrop-filter: blur(8px);
+    }
+    .kpi-icon {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+    .kpi-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 26px;
+      font-weight: 500;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .kpi-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+      line-height: 1.4;
+    }
+
+    /* DESCRIZIONE */
+    .desc-block {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 40px;
+      backdrop-filter: blur(8px);
+    }
+    .desc-block h3 {
+      font-family: 'Fraunces', serif;
+      font-weight: 400;
+      font-size: 18px;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+    .desc-block p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* RISULTATI */
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    @media (max-width: 600px) { .results-grid { grid-template-columns: 1fr; } }
+
+    .result-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .result-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .result-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+    .result-text strong {
+      color: var(--text-primary);
+      font-weight: 500;
+      display: block;
+      margin-bottom: 2px;
+      font-size: 13px;
+    }
+
+    /* CTA */
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #1a8fe0; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+    .btn-outline:hover {
+      border-color: rgba(44,161,254,0.4);
+      color: var(--text-primary);
+    }
+
+    /* FOOTER NOTE */
+    .footer-note {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* ANIMATE IN */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.6s ease forwards;
+    }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up:nth-child(1) { animation-delay: 0.05s; }
+    .fade-up:nth-child(2) { animation-delay: 0.15s; }
+    .fade-up:nth-child(3) { animation-delay: 0.25s; }
+    .fade-up:nth-child(4) { animation-delay: 0.35s; }
+    .fade-up:nth-child(5) { animation-delay: 0.45s; }
+    .fade-up:nth-child(6) { animation-delay: 0.55s; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="breadcrumb">
+      Portfolio <span>/</span> Lavori <span>/</span> Automazione
+    </div>
+
+    <div class="project-header fade-up">
+      <div class="project-tag">Progetto completato</div>
+      <h1>Report Settimanale<br><em>Automatico</em></h1>
+      <p class="project-subtitle">
+        Pipeline end-to-end che genera e distribuisce ogni settimana una dashboard HTML di analisi operativa — senza nessun intervento manuale.
+      </p>
+      <div class="stack-row">
+        <span class="pill">n8n</span>
+        <span class="pill">Claude API</span>
+        <span class="pill">Google Sheets</span>
+        <span class="pill">GitHub Pages</span>
+        <span class="pill">Gmail API</span>
+        <span class="pill">JavaScript</span>
+      </div>
+    </div>
+
+    <div class="divider fade-up"></div>
+
+    <div class="fade-up">
+      <p class="section-label">Flusso automatizzato</p>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-node">
+            <span class="node-label">trigger</span>
+            Venerdì 12:00
+          </div>
+          <span class="flow-arrow">→</span>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">
+            <span class="node-label">sorgente</span>
+            Google Sheets
+          </div>
+          <span class="flow-arrow">→</span>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">
+            <span class="node-label">AI</span>
+            Claude API
+          </div>
+          <span class="flow-arrow">→</span>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">
+            <span class="node-label">hosting</span>
+            GitHub Pages
+          </div>
+          <span class="flow-arrow">→</span>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">
+            <span class="node-label">distribuzione</span>
+            Gmail
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-grid fade-up">
+      <div class="kpi-card">
+        <div class="kpi-icon">⚙️</div>
+        <div class="kpi-value">0</div>
+        <div class="kpi-label">Interventi manuali per run</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">💶</div>
+        <div class="kpi-value">~0,07€</div>
+        <div class="kpi-label">Costo per report generato</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-value">35</div>
+        <div class="kpi-label">Record CRM elaborati a settimana</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🔗</div>
+        <div class="kpi-value">1</div>
+        <div class="kpi-label">Link sempre aggiornato, mai cambia</div>
+      </div>
+    </div>
+
+    <div class="desc-block fade-up">
+      <h3>Cosa fa il workflow</h3>
+      <p>
+        Ogni venerdì a mezzogiorno n8n legge automaticamente i dati degli interventi tecnici dal foglio Google Sheets, li converte in CSV e li passa a Claude API con un prompt strutturato. Claude genera una dashboard HTML completa — KPI, grafici, tabelle riepilogative — in lingua italiana e con tema grafico coerente. Il file viene poi caricato su GitHub Pages tramite API, sovrascrivendo sempre lo stesso URL. Gmail invia la notifica con il link diretto. Zero configurazione settimanale, zero intervento umano.
+      </p>
+    </div>
+
+    <div class="fade-up">
+      <p class="section-label">Risultati chiave</p>
+      <div class="results-grid">
+        <div class="result-item">
+          <div class="result-dot"></div>
+          <div class="result-text">
+            <strong>Automazione completa</strong>
+            Dal dato grezzo al report distribuito via mail senza nessun passaggio manuale
+          </div>
+        </div>
+        <div class="result-item">
+          <div class="result-dot"></div>
+          <div class="result-text">
+            <strong>AI generativa applicata</strong>
+            Claude API usata non come chatbot ma come motore di rendering dati → HTML
+          </div>
+        </div>
+        <div class="result-item">
+          <div class="result-dot"></div>
+          <div class="result-text">
+            <strong>Costo operativo minimo</strong>
+            ~5–8 centesimi a settimana di API, hosting gratuito su GitHub Pages
+          </div>
+        </div>
+        <div class="result-item">
+          <div class="result-dot"></div>
+          <div class="result-text">
+            <strong>Scalabile e adattabile</strong>
+            Prompt e sorgente dati sostituibili: stesso workflow funziona per qualsiasi report operativo
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fade-up">
+      <div class="cta-row">
+        <a href="https://alessandrodardi-1982.github.io/portfolio/reports/report_settimanale.html" class="btn btn-primary" target="_blank">
+          ↗ Apri l'ultimo report
+        </a>
+        <a href="https://alessandrodardi-1982.github.io/portfolio/" class="btn btn-outline" target="_blank">
+          ← Torna al portfolio
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-note fade-up">
+      <span>Alessandro Dardi · Bologna</span>
+      <span>n8n self-hosted · Docker · Windows 10</span>
+    </div>
+
+  </div>
+</body>
+</html>
