@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Readiness Assessment — Meridian Industries Srl</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy:#0d1b2a;--navy-mid:#132438;--navy-card:#1a2f47;--navy-light:#1e3a55;
+    --accent:#2ca1fe;--accent-dim:rgba(44,161,254,0.15);--accent-border:rgba(44,161,254,0.3);
+    --text:#e8edf2;--text-muted:#8fa3b8;--text-dim:#5c7a96;
+    --green:#22c55e;--amber:#f59e0b;--red:#ef4444;
+    --border:rgba(44,161,254,0.12);--section-gap:5rem;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--navy);color:var(--text);font-family:'DM Sans',sans-serif;font-size:1rem;line-height:1.7;-webkit-font-smoothing:antialiased;}
+  @media print{.no-print{display:none!important;}body{background:white;color:#111;}.cover{min-height:auto;padding:3rem 2rem;}section{page-break-inside:avoid;}canvas{max-width:100%;}}
+  nav{position:sticky;top:0;z-index:100;background:rgba(13,27,42,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:56px;}
+  .nav-brand{font-family:'Sora',sans-serif;font-size:0.8rem;font-weight:600;color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;}
+  .nav-links{display:flex;gap:1.75rem;list-style:none;}
+  .nav-links a{font-size:0.8rem;color:var(--text-muted);text-decoration:none;font-weight:500;transition:color 0.2s;letter-spacing:0.02em;}
+  .nav-links a:hover{color:var(--text);}
+  .btn-print{font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:500;background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-border);padding:0.35rem 1rem;border-radius:4px;cursor:pointer;transition:background 0.2s;letter-spacing:0.02em;}
+  .btn-print:hover{background:rgba(44,161,254,0.25);}
+  .cover{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:6rem 2rem 5rem;max-width:900px;margin:0 auto;position:relative;}
+  .cover::after{content:'';position:absolute;top:0;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(44,161,254,0.06) 0%,transparent 70%);pointer-events:none;}
+  .cover-eyebrow{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--accent);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:2rem;display:flex;align-items:center;gap:0.75rem;}
+  .cover-eyebrow::before{content:'';display:inline-block;width:32px;height:1px;background:var(--accent);}
+  .cover-title{font-family:'Sora',sans-serif;font-size:clamp(2.2rem,5vw,3.6rem);font-weight:700;line-height:1.15;color:var(--text);margin-bottom:0.5rem;letter-spacing:-0.02em;}
+  .cover-title span{color:var(--accent);}
+  .cover-subtitle{font-family:'Sora',sans-serif;font-size:clamp(1rem,2vw,1.25rem);font-weight:300;color:var(--text-muted);margin-bottom:3rem;letter-spacing:-0.01em;}
+  .cover-meta{display:flex;gap:3rem;flex-wrap:wrap;}
+  .meta-item{display:flex;flex-direction:column;gap:0.2rem;}
+  .meta-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;}
+  .meta-value{font-size:0.95rem;color:var(--text);font-weight:500;}
+  .cover-score-block{margin-top:4rem;display:inline-flex;align-items:center;gap:1.5rem;background:var(--navy-card);border:1px solid var(--border);border-left:3px solid var(--accent);padding:1.25rem 2rem;border-radius:6px;}
+  .score-number{font-family:'Sora',sans-serif;font-size:2.8rem;font-weight:700;color:var(--accent);line-height:1;}
+  .score-denom{font-family:'Sora',sans-serif;font-size:1.2rem;color:var(--text-dim);font-weight:300;}
+  .score-label{font-size:0.85rem;color:var(--text-muted);line-height:1.5;}
+  .score-label strong{display:block;font-family:'Sora',sans-serif;font-size:1rem;color:var(--text);margin-bottom:0.15rem;}
+  .section-wrap{max-width:900px;margin:0 auto;padding:0 2rem var(--section-gap);}
+  .section-header{display:flex;align-items:baseline;gap:1.25rem;margin-bottom:2.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border);}
+  .section-num{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;flex-shrink:0;padding-top:0.2rem;}
+  .section-title{font-family:'Sora',sans-serif;font-size:1.5rem;font-weight:600;color:var(--text);letter-spacing:-0.015em;line-height:1.3;}
+  .section-divider{border:none;border-top:1px solid var(--border);margin:0 2rem;}
+  .snapshot-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:2rem;}
+  .snapshot-cell{background:var(--navy-card);padding:1.25rem 1.5rem;}
+  .snapshot-cell.full{grid-column:1/-1;}
+  .snapshot-key{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-bottom:0.4rem;}
+  .snapshot-val{font-size:0.95rem;color:var(--text);font-weight:400;line-height:1.5;}
+  .snapshot-val strong{color:var(--text);font-weight:600;}
+  .problem-list{list-style:none;display:flex;flex-direction:column;gap:0.5rem;margin-top:0.5rem;}
+  .problem-list li{display:flex;align-items:flex-start;gap:0.6rem;font-size:0.92rem;color:var(--text-muted);}
+  .problem-list li::before{content:'→';color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:0.8rem;flex-shrink:0;margin-top:0.15rem;}
+  .insight-box{background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:6px;padding:1.25rem 1.5rem;font-size:0.92rem;color:var(--text-muted);line-height:1.7;}
+  .insight-box strong{color:var(--text);}
+
+  /* ── RADAR SECTION AGGIORNATA ── */
+  .radar-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  .radar-canvas-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--navy-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+
+  /* Tabella readiness */
+  .readiness-table-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .readiness-table-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin-bottom: 0.75rem;
+  }
+
+  .readiness-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .readiness-table thead tr {
+    background: var(--navy-mid);
+  }
+
+  .readiness-table th {
+    padding: 0.6rem 0.9rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .readiness-table th:nth-child(2),
+  .readiness-table th:nth-child(3) { text-align: center; }
+
+  .readiness-table tbody tr {
+    background: var(--navy-card);
+    border-bottom: 1px solid rgba(44,161,254,0.07);
+    transition: background 0.15s;
+  }
+
+  .readiness-table tbody tr:last-child { border-bottom: none; }
+  .readiness-table tbody tr:hover { background: var(--navy-light); }
+
+  .readiness-table td {
+    padding: 0.75rem 0.9rem;
+    font-size: 0.85rem;
+    vertical-align: middle;
+  }
+
+  .rd-dim {
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.88rem;
+  }
+
+  .rd-score-cell {
+    text-align: center;
+  }
+
+  .rd-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+
+  .rd-score.now { color: var(--accent); }
+  .rd-score.target { color: var(--green); }
+
+  .rd-bar-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .rd-bar-track {
+    height: 5px;
+    background: var(--navy-light);
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rd-bar-fill {
+    position: absolute;
+    left: 0; top: 0; height: 100%;
+    border-radius: 3px;
+  }
+
+  .rd-bar-fill.now-bar { background: var(--accent); }
+  .rd-bar-fill.target-bar { background: rgba(34,197,94,0.4); }
+
+  .rd-note {
+    font-size: 0.78rem;
+    color: var(--text);
+    line-height: 1.4;
+    padding-top: 0.1rem;
+  }
+
+  .radar-note {
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding: 1rem 1.25rem;
+    border-left: 2px solid var(--accent);
+    line-height: 1.6;
+  }
+
+  .legend-row {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .legend-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-right: 0.3rem;
+    vertical-align: middle;
+  }
+
+  /* ── USE CASE MAP ── */
+  .uc-chart-wrap{background:var(--navy-card);border:1px solid var(--border);border-radius:6px;padding:1.5rem;margin-bottom:2rem;}
+  .uc-canvas-wrap{position:relative;height:420px;}
+  .uc-legend{display:flex;gap:1.5rem;margin-top:1.25rem;flex-wrap:wrap;justify-content:center;}
+  .uc-legend-item{display:flex;align-items:center;gap:0.5rem;font-size:0.78rem;color:var(--text-muted);}
+  .uc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .uc-table{width:100%;border-collapse:collapse;}
+  .uc-table th{text-align:left;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;padding:0.6rem 1rem;border-bottom:1px solid var(--border);}
+  .uc-table td{padding:0.85rem 1rem;font-size:0.88rem;color:var(--text-muted);border-bottom:1px solid rgba(44,161,254,0.06);vertical-align:top;}
+  .uc-table tr:last-child td{border-bottom:none;}
+  .uc-table td:first-child{font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--text);font-weight:500;white-space:nowrap;}
+  .uc-name{color:var(--text);font-weight:500;display:block;margin-bottom:0.2rem;}
+  .uc-desc{font-size:0.82rem;color:var(--text-dim);line-height:1.5;}
+  .uc-score{font-family:'JetBrains Mono',monospace;font-size:0.82rem;text-align:center;white-space:nowrap;}
+  .priority-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:0.68rem;letter-spacing:0.06em;padding:0.2rem 0.55rem;border-radius:3px;text-transform:uppercase;}
+  .priority-alta{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3);}
+  .priority-media{background:rgba(245,158,11,0.12);color:var(--amber);border:1px solid rgba(245,158,11,0.25);}
+  .priority-bassa{background:rgba(92,122,150,0.15);color:var(--text-dim);border:1px solid rgba(92,122,150,0.2);}
+  .portfolio-link{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.78rem;color:var(--accent);text-decoration:none;margin-top:0.35rem;opacity:0.8;transition:opacity 0.2s;}
+  .portfolio-link:hover{opacity:1;}
+  .roadmap-timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:2rem;}
+  .phase-col{background:var(--navy-card);padding:1.75rem 1.5rem;display:flex;flex-direction:column;gap:1rem;}
+  .phase-header{display:flex;flex-direction:column;gap:0.3rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+  .phase-label{font-family:'JetBrains Mono',monospace;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);}
+  .phase-name{font-family:'Sora',sans-serif;font-size:1rem;font-weight:600;color:var(--text);}
+  .phase-period{font-size:0.8rem;color:var(--accent);font-weight:500;}
+  .phase-items{list-style:none;display:flex;flex-direction:column;gap:0.6rem;flex:1;}
+  .phase-items li{font-size:0.85rem;color:var(--text-muted);line-height:1.5;display:flex;align-items:flex-start;gap:0.5rem;}
+  .phase-items li::before{content:'–';color:var(--accent);font-family:'JetBrains Mono',monospace;flex-shrink:0;}
+  .phase-roi{margin-top:auto;padding-top:1rem;border-top:1px solid var(--border);font-size:0.8rem;color:var(--text-dim);line-height:1.5;}
+  .phase-roi strong{color:var(--green);font-weight:500;display:block;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;font-family:'JetBrains Mono',monospace;}
+  .principle-box{background:var(--navy-mid);border:1px solid var(--border);border-left:3px solid var(--accent);padding:1.25rem 1.5rem;border-radius:4px;font-size:0.9rem;color:var(--text-muted);line-height:1.7;}
+  .principle-box strong{color:var(--text);}
+  .milestone-bar{position:relative;margin:2.5rem 0;padding:0 0.5rem;}
+  .milestone-track{height:2px;background:var(--border);position:relative;}
+  .milestone-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--accent) 0%,rgba(44,161,254,0.3) 100%);}
+  .milestone-dots{display:flex;justify-content:space-between;position:relative;margin-top:-6px;}
+  .milestone-dot-wrap{display:flex;flex-direction:column;align-items:center;gap:0.5rem;}
+  .milestone-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--navy);z-index:1;}
+  .dot-f1{background:var(--accent);}.dot-f2{background:var(--amber);}.dot-f3{background:var(--green);}
+  .milestone-label{font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--text-dim);text-align:center;white-space:nowrap;}
+  .governance-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem;}
+  .gov-block{background:var(--navy-card);border:1px solid var(--border);border-radius:6px;padding:1.5rem;}
+  .gov-block-title{font-family:'Sora',sans-serif;font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:0.6rem;}
+  .gov-block-title::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+  .risk-list{list-style:none;display:flex;flex-direction:column;gap:0.65rem;}
+  .risk-item{display:flex;align-items:flex-start;gap:0.75rem;font-size:0.85rem;color:var(--text-muted);}
+  .risk-level{font-family:'JetBrains Mono',monospace;font-size:0.65rem;padding:0.15rem 0.4rem;border-radius:2px;text-transform:uppercase;letter-spacing:0.05em;flex-shrink:0;margin-top:0.15rem;}
+  .risk-alto{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.25);}
+  .risk-medio{background:rgba(245,158,11,0.12);color:var(--amber);border:1px solid rgba(245,158,11,0.25);}
+  .principle-list{list-style:none;display:flex;flex-direction:column;gap:0.75rem;}
+  .principle-list li{font-size:0.85rem;color:var(--text-muted);line-height:1.6;padding-left:0.9rem;border-left:2px solid var(--accent-border);}
+  .principle-list li strong{color:var(--text);font-weight:500;display:block;font-size:0.82rem;margin-bottom:0.15rem;}
+  .kpi-table{width:100%;border-collapse:collapse;margin-top:2rem;}
+  .kpi-table th{text-align:left;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;padding:0.6rem 1rem;border-bottom:1px solid var(--border);}
+  .kpi-table td{padding:0.85rem 1rem;font-size:0.88rem;color:var(--text-muted);border-bottom:1px solid rgba(44,161,254,0.06);vertical-align:top;}
+  .kpi-table tr:last-child td{border-bottom:none;}
+  .kpi-table td:first-child{color:var(--text);font-weight:500;font-size:0.85rem;}
+  .kpi-target{font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--accent);white-space:nowrap;}
+  footer{border-top:1px solid var(--border);padding:2.5rem 2rem;max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+  .footer-note{font-size:0.78rem;color:var(--text-dim);line-height:1.6;}
+  .footer-link{font-size:0.78rem;color:var(--accent);text-decoration:none;opacity:0.8;}
+  .footer-link:hover{opacity:1;}
+  .banner-demo{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-left:3px solid var(--amber);padding:0.75rem 1.5rem;display:flex;align-items:center;gap:0.75rem;font-size:0.82rem;color:var(--amber);line-height:1.5;}
+  .banner-demo-icon{font-size:0.9rem;flex-shrink:0;}
+  .banner-demo span{color:var(--text-muted);}
+  .banner-demo strong{color:var(--amber);}
+  .storia-wrap{max-width:900px;margin:0 auto;padding:0 2rem var(--section-gap);}
+  .storia-intro{font-size:1.05rem;color:var(--text-muted);line-height:1.8;margin-bottom:2rem;text-align:justify;width:100%;}
+  .storia-intro strong{color:var(--text);}
+  .storia-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .storia-card{background:var(--navy-card);padding:1.5rem;display:flex;flex-direction:column;gap:0.5rem;}
+  .storia-card-label{font-family:'JetBrains Mono',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);}
+  .storia-card-text{font-size:0.88rem;color:var(--text-muted);line-height:1.6;text-align:justify;hyphens:auto;}
+  .storia-card-text strong{color:var(--text);font-weight:500;}
+  @media(max-width:680px){
+    nav{padding:0 1rem;}.nav-links{display:none;}
+    .cover{padding:5rem 1.25rem 3rem;}.section-wrap{padding:0 1.25rem var(--section-gap);}
+    .section-divider{margin:0 1.25rem;}.snapshot-grid{grid-template-columns:1fr;}
+    .snapshot-cell.full{grid-column:1;}.radar-layout{grid-template-columns:1fr;}
+    .roadmap-timeline{grid-template-columns:1fr;}.governance-grid{grid-template-columns:1fr;}
+    .cover-meta{gap:1.5rem;}.cover-score-block{flex-direction:column;text-align:center;gap:0.75rem;}
+    .storia-cards{grid-template-columns:1fr;}.storia-wrap{padding:0 1.25rem var(--section-gap);}
+  }
+</style>
+</head>
+<body>
+
+<nav class="no-print">
+  <span class="nav-brand">Meridian Industries — AI Assessment</span>
+  <ul class="nav-links">
+    <li><a href="#snapshot">Azienda</a></li>
+    <li><a href="#readiness">Readiness</a></li>
+    <li><a href="#usecases">Use Case</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#governance">Governance</a></li>
+  </ul>
+  <button class="btn-print" onclick="window.print()">Salva PDF</button>
+</nav>
+
+<div class="banner-demo">
+  <span class="banner-demo-icon">⚠</span>
+  <div><strong>Caso dimostrativo.</strong> <span>Meridian Industries Srl è un'azienda fittizia costruita su pattern reali di PMI manifatturiere italiane. Tutti i dati, le valutazioni e i numeri sono simulati a scopo illustrativo. L'obiettivo è mostrare come si struttura un assessment AI reale, non rappresentare un cliente specifico.</span></div>
+</div>
+
+<div class="cover">
+  <div class="cover-eyebrow">AI Readiness Assessment</div>
+  <h1 class="cover-title">Dove si trova<br>Meridian<span>.</span><br>Dove può arrivare.</h1>
+  <p class="cover-subtitle">Analisi della maturità AI e roadmap di adozione per una PMI industriale italiana</p>
+  <div class="cover-meta">
+    <div class="meta-item"><span class="meta-label">Azienda</span><span class="meta-value">Meridian Industries Srl</span></div>
+    <div class="meta-item"><span class="meta-label">Settore</span><span class="meta-value">Manutenzione industriale</span></div>
+    <div class="meta-item"><span class="meta-label">Dimensione</span><span class="meta-value">45 dipendenti · €8M fatturato</span></div>
+    <div class="meta-item"><span class="meta-label">Orizzonte</span><span class="meta-value">18 mesi</span></div>
+  </div>
+  <div class="cover-score-block">
+    <div><span class="score-number">9</span><span class="score-denom">/20</span></div>
+    <div class="score-label">
+      <strong>AI Ready: Fase Iniziale</strong>
+      Maturità sufficiente per avviare un percorso strutturato.<br>
+      Il rischio principale non è tecnologico — è organizzativo.
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<div class="storia-wrap" style="padding-top:var(--section-gap);">
+  <div class="section-header">
+    <span class="section-num">00 / Origine del progetto</span>
+    <h2 class="section-title">Perché questo documento esiste</h2>
+  </div>
+  <p class="storia-intro">Nel mio lavoro come Service Manager ho coordinato tecnici, gestito fornitori e tenuto sotto controllo centinaia di interventi aperti contemporaneamente. <strong>Gli strumenti c'erano — Excel, CRM, ERP — ma nessuno li leggeva in modo intelligente.</strong> Le decisioni importanti si prendevano a intuito, su dati dispersi, spesso in ritardo.</p>
+  <p class="storia-intro">Questo assessment nasce da quella esperienza. Ho costruito il caso Meridian Industries per dimostrare come si affronta una trasformazione AI in una PMI industriale italiana: non partendo dalla tecnologia, ma dai problemi reali dell'operativo. <strong>Prima si capisce dove si è. Poi si decide dove andare. Solo alla fine si sceglie lo strumento.</strong></p>
+  <div class="storia-cards">
+    <div class="storia-card"><span class="storia-card-label">Il problema che conosco</span><p class="storia-card-text">Dati frammentati, processi persona-dipendenti, nessuna visibilità predittiva. <strong>È la realtà di molte PMI italiane con cui ho lavorato.</strong> Non mancano le informazioni — mancano gli strumenti per leggerle.</p></div>
+    <div class="storia-card"><span class="storia-card-label">L'approccio che propongo</span><p class="storia-card-text">Assessment della maturità attuale, mappa dei casi d'uso prioritari, roadmap per fasi con ROI stimato, framework di governance. <strong>Una struttura replicabile su qualsiasi cliente industriale.</strong></p></div>
+    <div class="storia-card"><span class="storia-card-label">Il collegamento con il portfolio</span><p class="storia-card-text">I prototipi funzionanti per UC1 (triage assistenza) e UC2 (manutenzione predittiva) <strong>esistono già nel portfolio</strong> — costruiti con le stesse tecnologie che propongo qui. La strategia e gli strumenti si confermano a vicenda.</p></div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<section id="snapshot" class="section-wrap" style="padding-top:var(--section-gap);">
+  <div class="section-header">
+    <span class="section-num">01 / Company Snapshot</span>
+    <h2 class="section-title">Chi è Meridian Industries</h2>
+  </div>
+  <div class="snapshot-grid">
+    <div class="snapshot-cell"><div class="snapshot-key">Struttura</div><div class="snapshot-val">1 sede produttiva, 1 Responsabile Operativo,<br>8 tecnici sul campo, 3 commerciali</div></div>
+    <div class="snapshot-cell"><div class="snapshot-key">Strumenti attuali</div><div class="snapshot-val">Excel, ERP base, email, WhatsApp per il coordinamento tecnici</div></div>
+    <div class="snapshot-cell"><div class="snapshot-key">Processi chiave</div><div class="snapshot-val">Gestione ordini, pianificazione interventi, manutenzione clienti, acquisti fornitori</div></div>
+    <div class="snapshot-cell"><div class="snapshot-key">Figura centrale</div><div class="snapshot-val">Il <strong>Responsabile Operativo</strong> coordina tecnici, priorità e fornitori. Lavora su Excel e telefono — nessuno strumento dedicato.</div></div>
+    <div class="snapshot-cell full">
+      <div class="snapshot-key">Problemi dichiarati</div>
+      <ul class="problem-list">
+        <li>Attività manuali eccessive che assorbono tempo operativo</li>
+        <li>Dati dispersi su più file Excel non collegati tra loro</li>
+        <li>Nessuna visibilità predittiva su guasti, riordini, scadenze</li>
+        <li>Difficoltà a scalare il business senza assumere nuove risorse</li>
+      </ul>
+    </div>
+  </div>
+  <div class="insight-box"><strong>Lettura del contesto.</strong> Meridian non ha un problema tecnologico: ha un problema di dati frammentati e processi persona-dipendenti. Prima di attivare qualsiasi strumento AI, serve un layer dati minimale e coerente. L'AI amplifica ciò che funziona — non ripara ciò che è rotto.</div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ══════════════════════════════════════════
+     SEZIONE 2 — AI READINESS (AGGIORNATA)
+     ══════════════════════════════════════════ -->
+<section id="readiness" class="section-wrap" style="padding-top:var(--section-gap);">
+  <div class="section-header">
+    <span class="section-num">02 / AI Readiness Assessment</span>
+    <h2 class="section-title">Dove si trova Meridian oggi</h2>
+  </div>
+
+  <div class="radar-layout">
+
+    <!-- RADAR CHART migliorato -->
+    <div class="radar-canvas-wrap">
+      <canvas id="radarChart"></canvas>
+    </div>
+
+    <!-- TABELLA COMPATTA -->
+    <div class="readiness-table-wrap">
+      <div class="legend-row">
+        <span><span class="legend-dot" style="background:var(--accent);"></span>Oggi</span>
+        <span><span class="legend-dot" style="background:var(--green);"></span>Target 18 mesi</span>
+      </div>
+      <table class="readiness-table">
+        <thead>
+          <tr>
+            <th>Dimensione</th>
+            <th>Ora</th>
+            <th>Target</th>
+            <th style="min-width:140px">Progressione</th>
+            <th>Nota</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rd-dim">Dati</td>
+            <td class="rd-score-cell"><span class="rd-score now">2/5</span></td>
+            <td class="rd-score-cell"><span class="rd-score target">4/5</span></td>
+            <td>
+              <div class="rd-bar-wrap">
+                <div class="rd-bar-track">
+                  <div class="rd-bar-fill target-bar" style="width:80%"></div>
+                  <div class="rd-bar-fill now-bar" style="width:40%"></div>
+                </div>
+              </div>
+            </td>
+            <td class="rd-note">Frammentati su Excel. Nessuno storico strutturato su guasti o fermo.</td>
+          </tr>
+          <tr>
+            <td class="rd-dim">Processi</td>
+            <td class="rd-score-cell"><span class="rd-score now">3/5</span></td>
+            <td class="rd-score-cell"><span class="rd-score target">4/5</span></td>
+            <td>
+              <div class="rd-bar-wrap">
+                <div class="rd-bar-track">
+                  <div class="rd-bar-fill target-bar" style="width:80%"></div>
+                  <div class="rd-bar-fill now-bar" style="width:60%"></div>
+                </div>
+              </div>
+            </td>
+            <td class="rd-note">Funzionanti ma persona-dipendenti. Documentabili con intervento minimo.</td>
+          </tr>
+          <tr>
+            <td class="rd-dim">Persone</td>
+            <td class="rd-score-cell"><span class="rd-score now">2/5</span></td>
+            <td class="rd-score-cell"><span class="rd-score target">3/5</span></td>
+            <td>
+              <div class="rd-bar-wrap">
+                <div class="rd-bar-track">
+                  <div class="rd-bar-fill target-bar" style="width:60%"></div>
+                  <div class="rd-bar-fill now-bar" style="width:40%"></div>
+                </div>
+              </div>
+            </td>
+            <td class="rd-note">Nessuna competenza digitale avanzata. Resistenza culturale per abitudine, non per rifiuto.</td>
+          </tr>
+          <tr>
+            <td class="rd-dim">Infrastruttura</td>
+            <td class="rd-score-cell"><span class="rd-score now">2/5</span></td>
+            <td class="rd-score-cell"><span class="rd-score target">4/5</span></td>
+            <td>
+              <div class="rd-bar-wrap">
+                <div class="rd-bar-track">
+                  <div class="rd-bar-fill target-bar" style="width:80%"></div>
+                  <div class="rd-bar-fill now-bar" style="width:40%"></div>
+                </div>
+              </div>
+            </td>
+            <td class="rd-note">ERP base, nessun cloud, nessuna API. Dati non accessibili programmaticamente.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="radar-note">
+    Lo score <strong>9/20</strong> indica una maturità sufficiente per avviare il percorso — ma non per bruciare le tappe. La priorità è consolidare i dati prima di investire in AI avanzata.
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<section id="usecases" class="section-wrap" style="padding-top:var(--section-gap);">
+  <div class="section-header">
+    <span class="section-num">03 / Use Case Map</span>
+    <h2 class="section-title">Cosa può fare l'AI per Meridian</h2>
+  </div>
+  <div class="uc-chart-wrap">
+    <div class="uc-canvas-wrap"><canvas id="bubbleChart"></canvas></div>
+    <div class="uc-legend">
+      <div class="uc-legend-item"><div class="uc-dot" style="background:var(--green)"></div> Alta priorità — quick win</div>
+      <div class="uc-legend-item"><div class="uc-dot" style="background:var(--amber)"></div> Priorità media — consolidamento</div>
+      <div class="uc-legend-item"><div class="uc-dot" style="background:var(--text-dim)"></div> Priorità bassa</div>
+    </div>
+  </div>
+  <table class="uc-table">
+    <thead><tr><th>ID</th><th>Use case</th><th style="text-align:center">Impatto</th><th style="text-align:center">Difficoltà</th><th>Priorità</th></tr></thead>
+    <tbody>
+      <tr><td>UC1</td><td><span class="uc-name">Triage automatico richieste assistenza</span><span class="uc-desc">Classificazione e instradamento delle richieste cliente in base al tipo di guasto e urgenza. Riduce il lavoro manuale del responsabile e accelera i tempi di risposta.</span><a href="https://alessandro-dardi.netlify.app/agente_supporto.html" class="portfolio-link" target="_blank">↗ Prototipo in portfolio (A4)</a></td><td class="uc-score" style="color:var(--accent)">4/5</td><td class="uc-score">2/5</td><td><span class="priority-badge priority-alta">Alta</span></td></tr>
+      <tr><td>UC2</td><td><span class="uc-name">Manutenzione predittiva</span><span class="uc-desc">Analisi dello storico interventi per anticipare guasti ricorrenti su specifici macchinari. Il use case più differenziante, ma richiede dati strutturati come prerequisito.</span><a href="https://alessandro-dardi.netlify.app/dashboard_manutenzione_predittiva.html" class="portfolio-link" target="_blank">↗ Prototipo in portfolio (A5)</a></td><td class="uc-score" style="color:var(--accent)">5/5</td><td class="uc-score">4/5</td><td><span class="priority-badge priority-media">Media</span></td></tr>
+      <tr><td>UC3</td><td><span class="uc-name">Report operativo automatico</span><span class="uc-desc">Generazione settimanale automatica del report operativo a partire dai dati CRM. Quick win immediato: alto impatto, bassa difficoltà, zero infrastruttura aggiuntiva.</span></td><td class="uc-score" style="color:var(--accent)">3/5</td><td class="uc-score">1/5</td><td><span class="priority-badge priority-alta">Alta</span></td></tr>
+      <tr><td>UC4</td><td><span class="uc-name">Assistente acquisti e fornitori</span><span class="uc-desc">Monitoring automatico fornitori con alert su anomalie di prezzo, ritardi di consegna, rotture di stock. Riduce il lavoro manuale dell'ufficio acquisti.</span></td><td class="uc-score" style="color:var(--accent)">3/5</td><td class="uc-score">2/5</td><td><span class="priority-badge priority-media">Media</span></td></tr>
+      <tr><td>UC5</td><td><span class="uc-name">Pianificazione intelligente tecnici</span><span class="uc-desc">Supporto decisionale per l'assegnazione degli interventi in base a zona geografica, specializzazione, carico di lavoro e storico cliente.</span></td><td class="uc-score" style="color:var(--accent)">4/5</td><td class="uc-score">3/5</td><td><span class="priority-badge priority-media">Media</span></td></tr>
+      <tr><td>UC6</td><td><span class="uc-name">Documentazione tecnica AI-assisted</span><span class="uc-desc">Generazione assistita di verbali, report intervento, schede tecniche. Utile ma non prioritario rispetto agli altri use case.</span></td><td class="uc-score" style="color:var(--accent)">2/5</td><td class="uc-score">1/5</td><td><span class="priority-badge priority-bassa">Bassa</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<hr class="section-divider">
+
+<section id="roadmap" class="section-wrap" style="padding-top:var(--section-gap);">
+  <div class="section-header">
+    <span class="section-num">04 / Roadmap di adozione</span>
+    <h2 class="section-title">Come arrivarci in 18 mesi</h2>
+  </div>
+  <div class="milestone-bar">
+    <div class="milestone-track"><div class="milestone-fill" style="width:100%"></div></div>
+    <div class="milestone-dots">
+      <div class="milestone-dot-wrap"><div class="milestone-dot dot-f1"></div><span class="milestone-label">Mese 1</span></div>
+      <div class="milestone-dot-wrap"><div class="milestone-dot dot-f1"></div><span class="milestone-label">Mese 3</span></div>
+      <div class="milestone-dot-wrap"><div class="milestone-dot dot-f2"></div><span class="milestone-label">Mese 4</span></div>
+      <div class="milestone-dot-wrap"><div class="milestone-dot dot-f2"></div><span class="milestone-label">Mese 9</span></div>
+      <div class="milestone-dot-wrap"><div class="milestone-dot dot-f3"></div><span class="milestone-label">Mese 10</span></div>
+      <div class="milestone-dot-wrap"><div class="milestone-dot dot-f3"></div><span class="milestone-label">Mese 18</span></div>
+    </div>
+  </div>
+  <div class="roadmap-timeline">
+    <div class="phase-col"><div class="phase-header"><span class="phase-label">Fase 1</span><span class="phase-name">Quick Wins</span><span class="phase-period">Mesi 1 – 3</span></div><ul class="phase-items"><li>Report operativo settimanale generato automaticamente da n8n e Claude API — zero intervento manuale</li><li>Triage delle richieste cliente con classificazione AI e ticket strutturato per il responsabile</li><li>Consolidamento dei dati esistenti in un unico foglio strutturato — base per tutto il resto</li></ul><div class="phase-roi"><strong>ROI stimato</strong>−3h/settimana lavoro manuale. Zero costi infrastruttura rilevanti.</div></div>
+    <div class="phase-col"><div class="phase-header"><span class="phase-label">Fase 2</span><span class="phase-name">Consolidamento</span><span class="phase-period">Mesi 4 – 9</span></div><ul class="phase-items"><li>Monitoring automatico fornitori con alert su anomalie di prezzo, ritardi e rotture di stock</li><li>Supporto AI alla pianificazione tecnici: zona, specializzazione, carico di lavoro</li><li>Introdurre un layer dati strutturato (Google Sheets o Airtable) condiviso tra i team</li><li>Formare il Responsabile Operativo sugli strumenti AI adottati nelle fasi precedenti</li></ul><div class="phase-roi"><strong>ROI stimato</strong>−20% tempo coordinamento. +15% puntualità interventi.</div></div>
+    <div class="phase-col"><div class="phase-header"><span class="phase-label">Fase 3</span><span class="phase-name">Trasformazione</span><span class="phase-period">Mesi 10 – 18</span></div><ul class="phase-items"><li>Manutenzione predittiva attiva sullo storico interventi consolidato nelle fasi precedenti</li><li>Dashboard executive con KPI real-time per la direzione</li><li>Governance AI formale: policy d'uso, audit periodico, ruoli e responsabilità definite</li></ul><div class="phase-roi"><strong>ROI stimato</strong>−30% interventi non pianificati. Proposta di valore differenziante verso i clienti.</div></div>
+  </div>
+  <div class="principle-box"><strong>Principio guida:</strong> ogni fase costruisce sulla precedente. Non si passa alla Fase 2 senza dati consolidati, non si passa alla Fase 3 senza processi stabili. <strong>L'AI amplifica ciò che funziona — non ripara ciò che è rotto.</strong></div>
+</section>
+
+<hr class="section-divider">
+
+<section id="governance" class="section-wrap" style="padding-top:var(--section-gap);padding-bottom:6rem;">
+  <div class="section-header">
+    <span class="section-num">05 / AI Governance Framework</span>
+    <h2 class="section-title">Come governare il cambiamento</h2>
+  </div>
+  <div class="governance-grid">
+    <div class="gov-block"><div class="gov-block-title">Rischi identificati</div><ul class="risk-list"><li class="risk-item"><span class="risk-level risk-alto">Alto</span>Decisioni automatizzate senza supervisione umana</li><li class="risk-item"><span class="risk-level risk-alto">Alto</span>Dati di scarsa qualità usati come input AI</li><li class="risk-item"><span class="risk-level risk-alto">Alto</span>Resistenza interna al cambiamento</li><li class="risk-item"><span class="risk-level risk-medio">Medio</span>Dipendenza da un unico fornitore AI</li><li class="risk-item"><span class="risk-level risk-medio">Medio</span>Non conformità EU AI Act (UC5 — pianificazione tecnici)</li></ul></div>
+    <div class="gov-block"><div class="gov-block-title">Principi operativi</div><ul class="principle-list"><li><strong>Human-in-the-loop</strong>Nessuna decisione automatizzata senza revisione umana in Fase 1 e 2.</li><li><strong>Trasparenza</strong>Ogni output AI è etichettato. Tecnici e clienti sanno sempre con cosa interagiscono.</li><li><strong>Audit periodico</strong>Revisione ogni 3 mesi su accuratezza, bias, aggiornamento policy.</li><li><strong>Data quality gate</strong>I dati vengono validati prima di attivare qualsiasi use case.</li><li><strong>Ruoli chiari</strong>Il Responsabile Operativo diventa AI Owner interno: non perde potere, lo estende.</li></ul></div>
+  </div>
+  <table class="kpi-table">
+    <thead><tr><th>KPI di controllo</th><th>Target</th><th>Interpretazione</th></tr></thead>
+    <tbody>
+      <tr><td>Accuratezza triage</td><td><span class="kpi-target">&gt;85%</span></td><td>% ticket classificati correttamente dall'AI prima della revisione umana</td></tr>
+      <tr><td>Tasso revisione umana</td><td><span class="kpi-target">5 – 40%</span></td><td>Troppo basso = black box. Troppo alto = AI inutile. Il range segnala un sistema bilanciato.</td></tr>
+      <tr><td>Incidenti critici</td><td><span class="kpi-target">0</span></td><td>Errori AI con impatto diretto su cliente o tecnico. Zero tolleranza.</td></tr>
+      <tr><td>Adozione interna</td><td><span class="kpi-target">&gt;80%</span></td><td>% processi target effettivamente usati dal team nel quotidiano</td></tr>
+    </tbody>
+  </table>
+  <div class="insight-box" style="margin-top:2rem;"><strong>Nota EU AI Act.</strong> I sistemi che supportano l'assegnazione di lavoratori (UC5) rientrano nella categoria a rischio limitato. Meridian deve garantire: trasparenza verso gli utenti finali, documentazione del sistema AI, possibilità di override umano in qualsiasi momento.</div>
+</section>
+
+<footer>
+  <div class="footer-note">Preparato da <strong>Alessandro Dardi</strong> — Operations & Digital Transformation<br><span style="color:var(--text-dim)">Service Manager con 8 anni di esperienza nell'industria — ora al crocevia tra operativo e digitale.</span></div>
+  <a href="https://alessandro-dardi.netlify.app" class="footer-link" target="_blank">← Torna al portfolio</a>
+</footer>
+
+<script>
+// ── RADAR CHART migliorato ──
+const radarCtx = document.getElementById('radarChart').getContext('2d');
+new Chart(radarCtx, {
+  type: 'radar',
+  data: {
+    labels: ['Dati', 'Processi', 'Persone', 'Infrastruttura'],
+    datasets: [
+      {
+        label: 'Target 18 mesi',
+        data: [4, 4, 3, 4],
+        backgroundColor: 'rgba(34,197,94,0.1)',
+        borderColor: 'rgba(34,197,94,0.7)',
+        borderWidth: 2,
+        borderDash: [5, 4],
+        pointBackgroundColor: '#22c55e',
+        pointBorderColor: 'rgba(34,197,94,0.4)',
+        pointRadius: 5,
+        pointHoverRadius: 6,
+      },
+      {
+        label: 'Oggi',
+        data: [2, 3, 2, 2],
+        backgroundColor: 'rgba(44,161,254,0.18)',
+        borderColor: '#2ca1fe',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#2ca1fe',
+        pointBorderColor: 'rgba(44,161,254,0.4)',
+        pointRadius: 5,
+        pointHoverRadius: 6,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    scales: {
+      r: {
+        min: 0,
+        max: 5,
+        ticks: {
+          stepSize: 1,
+          display: true,
+          color: 'rgba(92,122,150,0.7)',
+          font: { family: 'JetBrains Mono', size: 9 },
+          backdropColor: 'transparent',
+        },
+        grid: {
+          color: 'rgba(44,161,254,0.15)',
+          lineWidth: 1,
+        },
+        angleLines: {
+          color: 'rgba(44,161,254,0.2)',
+          lineWidth: 1,
+        },
+        pointLabels: {
+          color: '#e8edf2',
+          font: { family: 'Sora', size: 13, weight: '600' },
+          padding: 10,
+        }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#132438',
+        borderColor: 'rgba(44,161,254,0.3)',
+        borderWidth: 1,
+        titleColor: '#e8edf2',
+        bodyColor: '#8fa3b8',
+        padding: 10,
+        callbacks: {
+          label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}/5`
+        }
+      }
+    }
+  }
+});
+
+// ── BUBBLE CHART ──
+const bubbleCtx = document.getElementById('bubbleChart').getContext('2d');
+const bubbleChart = new Chart(bubbleCtx, {
+  type: 'bubble',
+  data: {
+    datasets: [
+      { label: 'Alta priorità', data: [{ x:2, y:4, r:22, uc:'UC1', desc:'Triage assistenza' },{ x:1, y:3, r:17, uc:'UC3', desc:'Report automatico' }], backgroundColor:'rgba(34,197,94,0.3)', borderColor:'rgba(34,197,94,0.9)', borderWidth:2 },
+      { label: 'Media priorità', data: [{ x:4, y:5, r:26, uc:'UC2', desc:'Manutenzione predittiva' },{ x:2, y:3, r:17, uc:'UC4', desc:'Assistente acquisti' },{ x:3, y:4, r:22, uc:'UC5', desc:'Pianificazione tecnici' }], backgroundColor:'rgba(245,158,11,0.28)', borderColor:'rgba(245,158,11,0.9)', borderWidth:2 },
+      { label: 'Bassa priorità', data: [{ x:1, y:2, r:14, uc:'UC6', desc:'Documentazione tecnica' }], backgroundColor:'rgba(92,122,150,0.25)', borderColor:'rgba(92,122,150,0.8)', borderWidth:2 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      x: { min:0, max:5.5, title:{ display:true, text:'Difficoltà di implementazione →', color:'#8fa3b8', font:{ family:'JetBrains Mono', size:11 } }, ticks:{ color:'#8fa3b8', font:{ family:'JetBrains Mono', size:11 }, stepSize:1, callback: v => v===1?'Bassa':v===3?'Media':v===5?'Alta':'' }, grid:{ color:'rgba(44,161,254,0.08)' }, border:{ color:'rgba(44,161,254,0.2)' } },
+      y: { min:0, max:6, title:{ display:true, text:'↑ Impatto atteso', color:'#8fa3b8', font:{ family:'JetBrains Mono', size:11 } }, ticks:{ color:'#8fa3b8', font:{ family:'JetBrains Mono', size:11 }, stepSize:1, callback: v => v===1?'Basso':v===3?'Medio':v===5?'Alto':'' }, grid:{ color:'rgba(44,161,254,0.08)' }, border:{ color:'rgba(44,161,254,0.2)' } }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: { backgroundColor:'#132438', borderColor:'rgba(44,161,254,0.3)', borderWidth:1, titleColor:'#e8edf2', bodyColor:'#8fa3b8', padding:12, callbacks:{ title: items => `${items[0].raw.uc} — ${items[0].raw.desc}`, label: ctx => [` Impatto: ${ctx.raw.y}/5`,` Difficoltà: ${ctx.raw.x}/5`] } },
+      afterDraw: undefined
+    }
+  },
+  plugins: [{
+    id: 'bubbleLabels',
+    afterDatasetsDraw(chart) {
+      const {ctx, data} = chart;
+      const colors = ['rgba(34,197,94,1)', 'rgba(245,158,11,1)', 'rgba(140,160,180,1)'];
+      data.datasets.forEach((ds, di) => {
+        ds.data.forEach((pt, pi) => {
+          const meta = chart.getDatasetMeta(di).data[pi];
+          if (!meta) return;
+          const {x, y} = meta.getProps(['x','y'], true);
+          ctx.save();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = "bold 11px 'JetBrains Mono', monospace";
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(pt.uc, x, y);
+          ctx.restore();
+        });
+      });
+    }
+  }]
+});
+</script>
+</body>
+</html>
