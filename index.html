@@ -29,7 +29,7 @@
 
   nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(0,26,51,.82);
     backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-  nav .wrap{display:flex;justify-content:space-between;align-items:center;height:64px}
+  nav .wrap{display:flex;justify-content:space-between;align-items:center;height:64px;gap:32px}
   .brand{font-family:'Fraunces',serif;font-weight:500;font-size:1.05rem;letter-spacing:-.01em;white-space:nowrap}
   .brand b{color:var(--amber)}
   .navlinks{display:flex;gap:22px;flex-wrap:nowrap}
@@ -41,7 +41,7 @@
   .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
   .hamburger.open span:nth-child(2){opacity:0}
   .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-  @media(max-width:1080px){
+  @media(max-width:1120px){
     .navlinks{display:none;flex-direction:column;position:fixed;top:64px;left:0;right:0;background:rgba(0,26,51,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:20px 24px 28px;gap:0}
     .navlinks.open{display:flex}
     .navlinks a{font-size:1rem;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06)}
