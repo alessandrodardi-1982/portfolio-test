@@ -32,8 +32,8 @@
   nav .wrap{display:flex;justify-content:space-between;align-items:center;height:64px}
   .brand{font-family:'Fraunces',serif;font-weight:500;font-size:1.05rem;letter-spacing:-.01em}
   .brand b{color:var(--amber)}
-  .navlinks{display:flex;gap:28px}
-  .navlinks a{color:var(--ink-soft);text-decoration:none;font-size:.82rem;font-weight:500;transition:color .2s,font-size .2s,font-weight .2s}
+  .navlinks{display:flex;gap:22px;flex-wrap:nowrap}
+  .navlinks a{color:var(--ink-soft);text-decoration:none;font-size:.82rem;font-weight:500;white-space:nowrap;transition:color .2s,font-size .2s,font-weight .2s}
   .navlinks a:hover{color:var(--amber)}
   .navlinks a.nav-active{color:#2ca1fe;font-size:.92rem;font-weight:700}
   .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;cursor:pointer;background:none;border:none;padding:4px}
@@ -41,7 +41,7 @@
   .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
   .hamburger.open span:nth-child(2){opacity:0}
   .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-  @media(max-width:680px){
+  @media(max-width:960px){
     .navlinks{display:none;flex-direction:column;position:fixed;top:64px;left:0;right:0;background:rgba(0,26,51,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:20px 24px 28px;gap:0}
     .navlinks.open{display:flex}
     .navlinks a{font-size:1rem;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06)}
