@@ -170,6 +170,7 @@
       <a href="#agente-ai">Agente AI</a>
       <a href="#ai-assessment">AI Assessment</a>
       <a href="#strumenti">Strumenti</a>
+      <a href="#formazione">Formazione</a>
       <a href="#contatti">Contatti</a>
     </div>
     <button class="hamburger" aria-label="Menu" id="hamburger">
@@ -204,13 +205,13 @@
           border:2px solid var(--line);display:block;">
       </div>
       <div style="max-width:640px;flex:1;min-width:260px;">
-        <p class="reveal" style="font-size:1.08rem;line-height:1.8;color:var(--ink-soft);margin-bottom:22px;">
+        <p class="reveal" style="font-size:1.08rem;line-height:1.8;color:var(--ink-soft);margin-bottom:22px;text-align:justify;hyphens:auto;">
           Laurea in Ingegneria Gestionale a Bologna, otto anni nelle operations industriali — aria compressa, refrigerazione, impianti — dove ho coordinato tecnici, gestito fornitori, seguito clienti dalla preventivazione alla chiusura intervento. Ho imparato a leggere i problemi prima che diventino emergenze e a tenere insieme persone, dati e scadenze.
         </p>
-        <p class="reveal" style="font-size:1.08rem;line-height:1.8;color:var(--ink-soft);margin-bottom:22px;">
+        <p class="reveal" style="font-size:1.08rem;line-height:1.8;color:var(--ink-soft);margin-bottom:22px;text-align:justify;hyphens:auto;">
           Negli ultimi anni ho aggiunto un layer diverso: automazione dei processi, analisi dati, AI applicata. Non per cambiare mestiere, ma per fare meglio quello che so già fare — e per portare quella mentalità in contesti che ne hanno bisogno.
         </p>
-        <p class="reveal" style="font-size:1.08rem;line-height:1.8;color:var(--ink-soft);">
+        <p class="reveal" style="font-size:1.08rem;line-height:1.8;color:var(--ink-soft);text-align:justify;hyphens:auto;">
           Cerco un ruolo dove contino entrambe le cose: l'esperienza sul campo e la capacità di trasformarla in strumenti.
         </p>
       </div>
@@ -438,6 +439,118 @@
       </div>
     </div>
 
+    <!-- A8 -->
+    <div class="swgroup reveal">
+      <div class="swgroup-head">
+        <span class="swtick">A8</span>
+        <span class="swname">Analisi energetica / AI</span>
+        <span class="swdesc">Diagnosi consumi con intelligenza artificiale</span>
+      </div>
+      <div class="work">
+        <div class="work-media" style="aspect-ratio:16/7;padding:0;background:var(--paper);display:block;position:relative;overflow:hidden;">
+          <iframe src="https://cheery-froyo-86386e.netlify.app/dashboard_energia.html" loading="lazy" title="Dashboard Analisi Consumi Energetici" style="width:200%;height:200%;transform:scale(.5);transform-origin:top left;border:none;pointer-events:none;display:block;"></iframe>
+          <div class="dash-preview-overlay"></div>
+          <span class="dash-preview-icon">Analisi Consumi Energetici — Termoflex Srl</span>
+        </div>
+        <div class="work-body">
+          <div class="work-top"><span class="badge-learned">Strumento nuovo per me</span></div>
+          <h4>Analisi consumi energetici — anomalie e diagnosi AI su impianti industriali</h4>
+          <div class="work-rows">
+            <div class="row"><span class="mono">Problema</span><p>Un impianto industriale consuma energia in modo non uniforme. Picchi anomali, sprechi nelle ore di fermo, consumi fuori scala: i dati ci sono, ma <strong>nessuno li legge in modo sistematico.</strong></p></div>
+            <div class="row"><span class="mono">Come</span><p>Dashboard con serie storiche per reparto (4 reparti, 12 mesi), anomalie rilevate automaticamente con scostamento percentuale e descrizione operativa. Il bottone AI invia i dati a Claude e restituisce una diagnosi con azioni correttive concrete.</p></div>
+            <div class="row"><span class="mono">Risultato</span><p>Vista immediata su trend, picchi e sprechi. L'analisi AI identifica le priorità di intervento in linguaggio operativo — non tecnico-informatico.</p></div>
+          </div>
+          <div class="work-aux"><span>+ Claude API</span><span>+ Chart.js</span><span>+ Netlify Functions</span><span>+ HTML/CSS/JS</span></div>
+          <a class="dash-link" href="https://cheery-froyo-86386e.netlify.app/dashboard_energia.html" target="_blank">Apri la dashboard →</a>
+          <p class="work-note"><b>Nota:</b> Dataset sintetico realistico — 942.504 kWh annui, 4 reparti, 3 anomalie simulate. Scenario fittizio: Termoflex Srl, Bologna.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- A9 -->
+    <div class="swgroup reveal">
+      <div class="swgroup-head">
+        <span class="swtick">A9</span>
+        <span class="swname">Gestione magazzino / AI</span>
+        <span class="swdesc">Ricambi critici, ABC analysis e suggerimenti riordino</span>
+      </div>
+      <div class="work">
+        <div class="work-media" style="aspect-ratio:16/7;padding:0;background:var(--paper);display:block;position:relative;overflow:hidden;">
+          <iframe src="https://benevolent-malasada-6e21e2.netlify.app/dashboard_magazzino.html" loading="lazy" title="Dashboard Gestione Ricambi e Magazzino" style="width:200%;height:200%;transform:scale(.5);transform-origin:top left;border:none;pointer-events:none;display:block;"></iframe>
+          <div class="dash-preview-overlay"></div>
+          <span class="dash-preview-icon">Gestione Ricambi — Termoflex Srl</span>
+        </div>
+        <div class="work-body">
+          <div class="work-top"><span class="badge-learned">Strumento nuovo per me</span></div>
+          <h4>Gestione ricambi e magazzino — stock critico, ABC analysis e diagnosi AI</h4>
+          <div class="work-rows">
+            <div class="row"><span class="mono">Problema</span><p>In manutenzione industriale il ricambio giusto deve esserci al momento del guasto. <strong>Rotture di stock sui componenti critici significano downtime.</strong> Magazzino pieno di pezzi mai usati significa capitale immobilizzato.</p></div>
+            <div class="row"><span class="mono">Come</span><p>Dashboard con ABC analysis su 20 articoli (18 mesi di storico), alert automatici per stock esaurito e sotto scorta, suggerimenti di riordino con quantità e lead time. Il bottone AI invia la situazione a Claude e restituisce le priorità operative.</p></div>
+            <div class="row"><span class="mono">Risultato</span><p>Vista immediata su cosa manca, cosa è fermo e cosa va riordinato. L'analisi AI sintetizza le criticità in linguaggio operativo, pronto per il responsabile acquisti.</p></div>
+          </div>
+          <div class="work-aux"><span>+ Claude API</span><span>+ Chart.js</span><span>+ ABC Analysis</span><span>+ Netlify Functions</span><span>+ HTML/CSS/JS</span></div>
+          <a class="dash-link" href="https://benevolent-malasada-6e21e2.netlify.app/dashboard_magazzino.html" target="_blank">Apri la dashboard →</a>
+          <p class="work-note"><b>Nota:</b> Dataset sintetico realistico — 20 articoli, 121 utilizzi su 18 mesi. Scenario fittizio: Termoflex Srl, Bologna.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- A10 -->
+    <div class="swgroup reveal">
+      <div class="swgroup-head">
+        <span class="swtick">A10</span>
+        <span class="swname">Preventivatore AI</span>
+        <span class="swdesc">Bozza preventivo tecnico da linguaggio naturale</span>
+      </div>
+      <div class="work">
+        <div class="work-media" style="aspect-ratio:16/7;padding:0;background:var(--paper);display:block;position:relative;overflow:hidden;">
+          <iframe src="https://magenta-daffodil-07f9ec.netlify.app/preventivatore_ai.html" loading="lazy" title="Preventivatore AI" style="width:200%;height:200%;transform:scale(.5);transform-origin:top left;border:none;pointer-events:none;display:block;"></iframe>
+          <div class="dash-preview-overlay"></div>
+          <span class="dash-preview-icon">Preventivatore AI — Termoflex Srl</span>
+        </div>
+        <div class="work-body">
+          <div class="work-top"><span class="badge-learned">Strumento nuovo per me</span></div>
+          <h4>Preventivatore AI — da una richiesta in linguaggio naturale a una bozza strutturata</h4>
+          <div class="work-rows">
+            <div class="row"><span class="mono">Problema</span><p>Costruire un preventivo tecnico è un processo lento e ripetitivo. Il tecnico o commerciale riceve una richiesta in linguaggio libero e deve <strong>tradurla manualmente in voci di costo, tempi e listini</strong> — con risultati inconsistenti tra operatori diversi.</p></div>
+            <div class="row"><span class="mono">Come</span><p>L'utente descrive la richiesta del cliente in testo libero, seleziona tipo impianto e urgenza. Claude legge il listino Termoflex, classifica l'intervento e genera una bozza strutturata con voci, quantità, prezzi e IVA.</p></div>
+            <div class="row"><span class="mono">Risultato</span><p>Bozza preventivo pronta in secondi, con tabella voci, totale IVA inclusa e note operative. Il responsabile rivede e approva — l'AI accelera, l'umano decide.</p></div>
+          </div>
+          <div class="work-aux"><span>+ Claude API</span><span>+ Netlify Functions</span><span>+ JSON strutturato</span><span>+ HTML/CSS/JS</span></div>
+          <a class="dash-link" href="https://magenta-daffodil-07f9ec.netlify.app/preventivatore_ai.html" target="_blank">Prova il preventivatore →</a>
+          <p class="work-note"><b>Nota:</b> Listino e scenario fittizi — Termoflex Srl, Bologna. I prezzi illustrano l'approccio metodologico, non tariffe reali.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- A11 -->
+    <div class="swgroup reveal">
+      <div class="swgroup-head">
+        <span class="swtick">A11</span>
+        <span class="swname">Audit impianti / AI</span>
+        <span class="swdesc">Ispezione guidata e verbale tecnico generato da AI</span>
+      </div>
+      <div class="work">
+        <div class="work-media" style="aspect-ratio:16/7;padding:0;background:var(--paper);display:block;position:relative;overflow:hidden;">
+          <iframe src="https://magenta-profiterole-37db8f.netlify.app/audit_impianti.html" loading="lazy" title="Audit Impianti AI" style="width:200%;height:200%;transform:scale(.5);transform-origin:top left;border:none;pointer-events:none;display:block;"></iframe>
+          <div class="dash-preview-overlay"></div>
+          <span class="dash-preview-icon">Audit Impianti — Termoflex Srl</span>
+        </div>
+        <div class="work-body">
+          <div class="work-top"><span class="badge-learned">Strumento nuovo per me</span></div>
+          <h4>Audit impianti — ispezione guidata e verbale tecnico generato da AI</h4>
+          <div class="work-rows">
+            <div class="row"><span class="mono">Problema</span><p>Le ispezioni periodiche producono note a mano e checklist cartacee che raramente diventano insight azionabili. Il tecnico torna in ufficio e deve <strong>ricostruire un verbale da zero</strong> — lento, qualità variabile, informazioni disperse.</p></div>
+            <div class="row"><span class="mono">Come</span><p>L'applicativo guida il tecnico attraverso una checklist strutturata per tipo impianto (compressore, gruppo frigo, impianto meccanico). Ogni voce ha stato OK / Da monitorare / Critico e campo note. Il punteggio si aggiorna in tempo reale. Al termine, Claude genera il verbale completo con criticità, raccomandazioni e prossima revisione.</p></div>
+            <div class="row"><span class="mono">Risultato</span><p>Verbale professionale in pochi secondi, con sintesi tecnica, livello di gravità per ogni criticità e piano d'azione. Lo storico audit mostra il trend nel tempo per impianto.</p></div>
+          </div>
+          <div class="work-aux"><span>+ Claude API</span><span>+ Netlify Functions</span><span>+ Checklist interattiva</span><span>+ HTML/CSS/JS</span></div>
+          <a class="dash-link" href="https://magenta-profiterole-37db8f.netlify.app/audit_impianti.html" target="_blank">Prova l'audit →</a>
+          <p class="work-note"><b>Nota:</b> Scenario fittizio — Termoflex Srl, Bologna. Le checklist sono basate su procedure reali di manutenzione industriale.</p>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -586,15 +699,68 @@
   </div>
 </section>
 
+<!-- SEZIONE FORMAZIONE & ATTESTATI -->
+<section id="formazione">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num mono">07 / Formazione</span>
+      <h2>Formazione <em>verificabile</em>, non dichiarata.</h2>
+      <p class="sec-sub">Il percorso digitale che affianca l'esperienza sul campo. Dove disponibile, ogni attestato è verificabile online.</p>
+    </div>
+
+    <div class="dash-grid" style="margin-top:42px">
+      <div class="dash-card reveal" style="grid-column:1/-1;max-width:760px;">
+        <div class="dash-body" style="padding:32px;">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+            <span class="badge-learned">Master</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--ink-soft);">Feb — Mag 2026</span>
+          </div>
+          <h4 style="font-family:'Fraunces',serif;font-weight:500;font-size:1.45rem;line-height:1.2;margin-bottom:8px;">Master in Digital Restart</h4>
+          <p style="color:var(--ink-soft);font-size:.9rem;margin-bottom:14px;">Talent Garden</p>
+          <p>Percorso intensivo su digital tools per la produttività, project management tradizionale e agile, AI tools per automatizzare processi e supportare le decisioni, marketing digitale e fondamenti agile (sprint, stand-up, retrospettive).</p>
+          <a class="dash-link" href="https://certificates.talentgarden.com/8271f5c6-8bea-4f43-8568-26cb49eadb82#acc.Sqc5GMEv" target="_blank" rel="noopener">Verifica l'attestato →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:30px;max-width:760px;">
+      <div style="border:1px solid var(--line);border-radius:5px;background:var(--paper);overflow:hidden;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap;">
+          <div>
+            <div style="font-weight:600;">n8n e JavaScript per automazioni e agenti AI</div>
+            <div style="color:var(--ink-soft);font-size:.86rem;">Udemy · corso pratico-professionale</div>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--ink-soft);white-space:nowrap;">Mag 2026</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap;">
+          <div>
+            <div style="font-weight:600;">Intelligenza artificiale e le sue applicazioni pratiche</div>
+            <div style="color:var(--ink-soft);font-size:.86rem;">Demetra Formazione</div>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--ink-soft);white-space:nowrap;">Mag 2025</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:18px 22px;flex-wrap:wrap;">
+          <div>
+            <div style="font-weight:600;">Laurea in Ingegneria Gestionale</div>
+            <div style="color:var(--ink-soft);font-size:.86rem;">Alma Mater Studiorum — Università di Bologna</div>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--ink-soft);white-space:nowrap;">UniBo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- SEZIONE CONTATTI -->
 <section id="contatti">
   <div class="wrap">
     <div class="contact-box reveal">
-      <span class="sec-num mono" style="display:block;margin-bottom:14px">07 / Contatti</span>
+      <span class="sec-num mono" style="display:block;margin-bottom:14px">08 / Contatti</span>
       <h2>Cerco il contesto giusto<br>dove <em>fare la differenza</em>.</h2>
       <p>Aperto a nuove opportunità in operations, digital transformation e automazione dei processi. Se cerchi un profilo che unisce esperienza industriale e mentalità digitale, scrivimi.</p>
       <div class="contact-links">
         <a class="btn btn-primary" href="https://www.linkedin.com/in/alessandro-dardi/" target="_blank">LinkedIn →</a>
+        <a class="btn btn-ghost" href="CV_Alessandro_Dardi.pdf" target="_blank" rel="noopener">Scarica il CV (PDF) →</a>
       </div>
       <div style="margin-top:28px;display:flex;flex-direction:column;gap:10px;align-items:center;">
         <span style="font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--ink-soft);"><span style="color:var(--amber);margin-right:8px;">✉</span>alessandro.dardi@gmail.com</span>
@@ -636,7 +802,7 @@
   });
 
   const navLinks = document.querySelectorAll('.navlinks a');
-  const sectionIds = ['chi-sono','lavori','analisi-dati','applicativi','agente-ai','ai-assessment','strumenti','contatti'];
+  const sectionIds = ['chi-sono','lavori','analisi-dati','applicativi','agente-ai','ai-assessment','strumenti','formazione','contatti'];
   const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
 
   const navObserver = new IntersectionObserver((entries) => {
